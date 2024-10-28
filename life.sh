@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# IDEEN:
+# In Python besser machen
+# Hintergrund ändern
+# bessere nachbar erkennung
+# Verschiedene Gebiete mit Regeln erstellen
+
 clearScreen() {
 
 	clear
