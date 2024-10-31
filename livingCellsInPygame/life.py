@@ -30,7 +30,7 @@ bodyColor = (124,252,0)
 max_cells = 100
 multiplier = 1
 delCellRed = []
-num_cells = 100
+num_cells =  0
 numRedCells = 1
 killOnes = False
 predatorNear = False
@@ -78,6 +78,22 @@ def spawnCell():
         num_cells += 1
 
 
+def spawnCellRed():
+    global numRedCells
+
+    mouse_x,mouse_y = pygame.mouse.get_pos()
+    
+    # WIR MÜSSEN DIE MAUSPOSITION UMRECHNEN ICH IDIOT!!!
+    col = mouse_x // cell_size
+    row = mouse_y // cell_size
+
+
+    print(col ,row )
+    
+    # GÜLTIGEN BEREICH SPAWNEN
+    if 0 <= col < cols and 0 <= row < rows:
+        redCells.append([row - 1, col - 1])
+        numRedCells += 1
 
 run = True
 while run :
@@ -95,7 +111,10 @@ while run :
                 #print("spawned food at random position.")
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            spawnCell()
+            if event.button == 1:
+                spawnCell()
+            if event.button == 3:
+                spawnCellRed()
 
     screen.fill("black")
     #print(num_cells)
@@ -124,7 +143,7 @@ while run :
         # Update die Position der aktuellen Zelle
 
             
-        print("X",col,"Y:",row)
+        #print("X",col,"Y:",row)
         cells[i] = [col,row]
 
 
@@ -183,18 +202,24 @@ while run :
         for g_row, g_col in cells:
             greenRect = pygame.Rect(g_col * cell_size, g_row * cell_size,bodySize,bodySize)
             if redCell.colliderect(greenRect):
-                for i in range(num_cells):
-                        num_cells -= 1
-                        cells.remove(cells[i])
-                        break
+                    num_cells -= 1
+                    cells.remove([g_row,g_col])
+                    break
 
             elif greenRect.colliderect(areaDetect):
                 for row,col in redCells:
-                    print(f"green cell at {g_row,g_col}")
-                    speed = 2 
-                    #upTurn = 0.1
+                    #print(f"green cell at {g_row,g_col}")
+                    speed = 2
+
+            # Überbevölkerung
+            elif num_cells >= 250:
+                while num_cells >= 250:
+                    num_cells -= 1
+                    cells.remove(cells[i])
+                    print(f"Es wurden: {num_cells - 250} getötet.")
+                    break
+
             else:
-                #upTurn = 0.97
                 speed = 1
 
     screen.blit(cellAliveText,(10,10))
