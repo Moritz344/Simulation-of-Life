@@ -8,11 +8,6 @@ import pygame
 #(0,2) (1,2) (2,2) ...
 #...
 
-# IDEE MAN KAN MIT MAUSTASTE FOOD SPAWNEN WO DIE ZELLEN SICH HINBEWEGEN KÖNNEN
-# LINE 145 LEFT OFF
-# ROW = Y COL = X
-
-# NEU: Rote Predator die Grüne Zellen essen.
 
 pygame.init()
 
@@ -31,11 +26,11 @@ bodySize = 18
 rows = 50
 cols = 50
 cell_size = 18
-bodyColor = "green"
+bodyColor = (124,252,0)
 max_cells = 100
 multiplier = 1
 delCellRed = []
-num_cells = 1
+num_cells = 100
 numRedCells = 1
 killOnes = False
 predatorNear = False
@@ -65,6 +60,23 @@ def spawnGrid(screen):
 
 
 
+def spawnCell():
+    global num_cells
+
+    mouse_x,mouse_y = pygame.mouse.get_pos()
+    
+    # WIR MÜSSEN DIE MAUSPOSITION UMRECHNEN ICH IDIOT!!!
+    col = mouse_x // cell_size
+    row = mouse_y // cell_size
+
+
+    print(col ,row )
+    
+    # GÜLTIGEN BEREICH SPAWNEN
+    if 0 <= col < cols and 0 <= row < rows:
+        cells.append([row - 1, col - 1])
+        num_cells += 1
+
 
 
 run = True
@@ -82,6 +94,9 @@ while run :
                 print("random seed ")
                 #print("spawned food at random position.")
 
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            spawnCell()
+
     screen.fill("black")
     #print(num_cells)
 
@@ -92,21 +107,24 @@ while run :
 
         col,row = cells[i]
 
-        if direction == "RIGHT" and random.random() > rightTurn:
+        if direction == "RIGHT" and random.random() > rightTurn and 0 <= col :
             col += speed
             #print(f"moved to the right at {col}")
-        elif direction == "LEFT" and col > 0 and random.random() > leftTurn:
+        elif direction == "LEFT" and col > 0 and random.random() > leftTurn and col < cols:
             col -= speed
             #print(f"moved to the left at {col}")
 
-        elif direction == "UP" and row > 0 and random.random() > upTurn:
+        elif direction == "UP" and row > 0 and random.random() > upTurn and 0 <= row:
             row -= speed
             #print(f"moved to up at {row}")
-        elif direction == "DOWN" and row < rows -1 and random.random() > downTurn:
+        elif direction == "DOWN" and row < rows -1 and random.random() > downTurn and row < rows - 1:
             row += speed
             #print(f"moved down at {row}")
     
         # Update die Position der aktuellen Zelle
+
+            
+        print("X",col,"Y:",row)
         cells[i] = [col,row]
 
 
@@ -115,13 +133,13 @@ while run :
 
         col2,row2 = redCells[i]
 
-        if direction2 == "RIGHT" and random.random() > 0.97:
+        if direction2 == "RIGHT" and random.random() > 0.97 and 0 <= col2:
             col2 += 1
-        elif direction2 == "LEFT" and col2 > 0 and random.random() > 0.97:
+        elif direction2 == "LEFT" and col2 > 0 and random.random() > 0.97 and col2 < cols:
             col2 -= 1
-        elif direction2 == "UP" and row2 > 0 and random.random() > 0.97:
+        elif direction2 == "UP" and row2 > 0 and random.random() > 0.97 and 0 <= row2:
             row2 -= 1
-        elif direction2 == "DOWN" and row2 < rows -1 and random.random() > 0.97:
+        elif direction2 == "DOWN" and row2 < rows -1 and random.random() > 0.97 and row2 < rows :
             row2 += 1
         
         redCells[i] = col2,row2
@@ -143,18 +161,20 @@ while run :
 
     #cells.remove(cells[i])
 
+
     
     cellAliveText = font.render(f"Cells: {num_cells}",False,(255,255,255))
 
+    for row2,col2 in redCells:
+        redCell = pygame.draw.rect(screen,"red",(col2 * cell_size ,row2 * cell_size ,cell_size,cell_size))
+        areaDetect = pygame.draw.rect(screen,"black",(col2 * cell_size - 40,row2 * cell_size - 40,cell_size + 300,cell_size + 100),1)
 
     for row,col in cells:
         greenCell = pygame.draw.rect(screen,bodyColor,(col * cell_size ,row * cell_size ,bodySize,bodySize))
+        box = pygame.draw.rect(screen,"black",(col * cell_size,row * cell_size,20,20),2)
 
 
-
-    for row2,col2 in redCells:
-        redCell = pygame.draw.rect(screen,"red",(col2 * cell_size ,row2 * cell_size ,cell_size,cell_size))
-        areaDetect = pygame.draw.rect(screen,"blue",(col2 * cell_size - 40,row2 * cell_size - 40,cell_size + 300,cell_size + 100),5)
+        
 
 
 
@@ -171,14 +191,11 @@ while run :
             elif greenRect.colliderect(areaDetect):
                 for row,col in redCells:
                     print(f"green cell at {g_row,g_col}")
-                    speed = 10
-                    upTurn = 0.1
-                    print(leftTurn,upTurn)
-
+                    speed = 2 
+                    #upTurn = 0.1
             else:
-                upTurn = 0.97
+                #upTurn = 0.97
                 speed = 1
-
 
     screen.blit(cellAliveText,(10,10))
 
