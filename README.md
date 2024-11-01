@@ -30,3 +30,6 @@ Aggressive Zellen die jede Grüne Zelle töten.
 # Zukunft
 In Zukunft wird das Projekt wachsen.
 Wenn ihr Ideen habt dann schreibt mich an per e-mail oder per Pull Request!
+
+# Author
+- @Moritz344
