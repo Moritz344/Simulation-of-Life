@@ -14,12 +14,13 @@ pygame.init()
 # FONT
 pygame.font.init()
 font = pygame.font.SysFont("Open Sans",20)
+bigFont = pygame.font.SysFont("Open Sans",100)
 text_farbe = (255,255,255)
 
 screenWidth = 800
 screenHeight = 610
 screen = pygame.display.set_mode((screenWidth,screenHeight))
-pygame.display.set_caption("Game Of Life")
+caption = pygame.display.set_caption("Game Of Life")
 clock = pygame.time.Clock()
 
 bodySize = 18
@@ -41,6 +42,9 @@ rightTurn = 0.97
 leftTurn = 0.97
 upTurn = 0.97
 downTurn = 0.97
+
+rightTurnRed = 0.97
+leftTurnRed = 0.97
 
 cells = [[random.randint(0, cols - 1),random.randint(0,rows - 1)] for _ in range(num_cells)]
 redCells = [[random.randint(0,cols - 1),random.randint(0,rows - 1)] for _ in range(numRedCells)]
@@ -95,6 +99,27 @@ def spawnCellRed():
         redCells.append([row - 1, col - 1])
         numRedCells += 1
 
+def pauseScreen(width,height,font):
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+
+        pauseText = font.render("PAUSED",False,(255,255,255))
+
+        screen.blit(pauseText,(width // 2 - 200 ,height // 2 - 90 ))
+
+
+
+        clock.tick(60)
+        pygame.display.update()
+
+
 run = True
 while run :
     for event in pygame.event.get():
@@ -109,12 +134,16 @@ while run :
                 
                 print("random seed ")
                 #print("spawned food at random position.")
+            if event.key == pygame.K_ESCAPE:
+                pauseScreen(screenWidth,screenHeight,bigFont)
+
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 spawnCell()
             if event.button == 3:
                 spawnCellRed()
+
 
     screen.fill("black")
     #print(num_cells)
@@ -152,13 +181,13 @@ while run :
 
         col2,row2 = redCells[i]
 
-        if direction2 == "RIGHT" and random.random() > 0.97 and 0 <= col2:
+        if direction2 == "RIGHT" and  0 <= col2:
             col2 += 1
-        elif direction2 == "LEFT" and col2 > 0 and random.random() > 0.97 and col2 < cols:
+        elif direction2 == "LEFT" and col2 > 0 and col2 < cols:
             col2 -= 1
-        elif direction2 == "UP" and row2 > 0 and random.random() > 0.97 and 0 <= row2:
+        elif direction2 == "UP" and row2 > 0 and 0 <= row2:
             row2 -= 1
-        elif direction2 == "DOWN" and row2 < rows -1 and random.random() > 0.97 and row2 < rows :
+        elif direction2 == "DOWN" and row2 < rows -1 and row2 < rows :
             row2 += 1
         
         redCells[i] = col2,row2
@@ -166,19 +195,6 @@ while run :
 
     spawnGrid(screen)
 
-    #while numRedCells < 50:
-        #numRedCells += 1
-        #redCells.append([random.randint(0,cols - 1),random.randint(0,rows - 1)])
-        #break
-       
-    #num_cells += multiplier
-    #cells.append([random.randint(0, cols - 1),random.randint(0,rows - 1)])
-    #if num_cells == 10:
-        #multiplier = 0
-
-    
-
-    #cells.remove(cells[i])
 
 
     
@@ -208,16 +224,24 @@ while run :
 
             elif greenRect.colliderect(areaDetect):
                 for row,col in redCells:
-                    #print(f"green cell at {g_row,g_col}")
-                    speed = 2
+                    try:
+                        while cells[i] != redCells[i]:
+                            row = g_row
+                            col = g_col
+                            break
+                    except Exception as e:
+                        print(f"Program crashed: {e}")
 
             # Überbevölkerung
             elif num_cells >= 250:
-                while num_cells >= 250:
-                    num_cells -= 1
-                    cells.remove(cells[i])
-                    print(f"Es wurden: {num_cells - 250} getötet.")
-                    break
+                try:
+                    while num_cells >= 250:
+                        num_cells -= 1
+                        cells.remove(cells[i])
+                        print(f"Es wurden: {num_cells - 250} getötet.")
+                        break
+                except Exception as e:
+                    print(e)
 
             else:
                 speed = 1
