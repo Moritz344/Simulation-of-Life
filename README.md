@@ -1,5 +1,5 @@
 # Simulation-of-Life
-Simulating life with code.
+Pixel Simulieren Dinge.
 
 # So sieht der Hase aus:
 
