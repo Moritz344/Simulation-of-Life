@@ -4,7 +4,8 @@ Simulating life with code.
 # So sieht der Hase aus:
 
 
-https://github.com/user-attachments/assets/6641104d-9b05-471e-af3f-e7bf2c9cbd6b
+
+https://github.com/user-attachments/assets/9d04239b-c5d3-4c00-9b30-77ad1187becf
 
 
 # Usage
