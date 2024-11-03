@@ -7,8 +7,8 @@ import pygame
 
 # SPAGHETTI CODE
 
-# TODO: SETTINGS MENU
 # IDEE: Predator können satt werden und die grünen zellen nicht mehr essen
+# IDEE: Grüne Zellen können orangene Zellen herstellen die Predator töten
 
 pygame.init()
 
@@ -40,13 +40,14 @@ bodyColor = (124,252,0)
 max_cells = 100
 multiplier = 1
 delCellRed = []
-num_cells =  0
-numRedCells = 1 # Fix this <-- Program crashed wenn auf 0
+num_cells =  1
+numRedCells = 1 
+numBlueCells = 0
 killOnes = False
-predatorNear = False
 
 speedGreen = 1
 speedRed = 1
+
 
 # Warscheinlichkeiten standard werte
 rightTurn = 0.97
@@ -61,7 +62,7 @@ downTurnRed = 0.97
 
 cells = [[random.randint(0, cols - 1),random.randint(0,rows - 1)] for _ in range(num_cells)]
 redCells = [[random.randint(0,cols - 1),random.randint(0,rows - 1)] for _ in range(numRedCells)]
-
+blueCells = [[random.randint(0,cols - 1),random.randint(0,rows - 1)] for _ in range(numBlueCells)]
 #print(num_cells)
 #print(numRedCells)
 
@@ -111,6 +112,13 @@ def spawnCellRed():
     if 0 <= col < cols and 0 <= row < rows:
         redCells.append([row , col ])
         numRedCells += 1
+
+def spawnFood():
+    foodx = random.randint(0,cols - 1)
+    foody = random.randint(0, rows - 1)
+    print(foodx,foody)
+    food = pygame.draw.rect(screen,"blue",(foodx * cell_size,foody * cell_size ,cell_size,cell_size))
+
 
 def infoScreen():
     runner = True
@@ -162,12 +170,17 @@ def pauseScreen(width,height,font):
                     infoScreen()
                     running = False
 
+                if quitTextBox.collidepoint(event.pos):
+                    sys.exit(0) # exit the whole program
+                    #running = False # exit PAUSED tab
+
         screen.fill("black")       
         mouse = pygame.mouse.get_pos()
+        
+        quitTextBox = pygame.draw.rect(screen,"black",(width // 2 - 200 ,height // 2 + 160,220,70))
 
         pauseText = font.render("PAUSED",False,(255,255,255))
         respawnButtonBox = pygame.draw.rect(screen,"black",(width // 2 - 200,height // 2 - 5 ,220,70))
-
         infoTextBox = pygame.draw.rect(screen,"black",(width // 2 - 200,height // 2 + 80,220,70))
 
         if respawnButtonBox.collidepoint(mouse):
@@ -181,13 +194,16 @@ def pauseScreen(width,height,font):
             infoText = smallFont.render("Info",False,"white")
 
 
-
+        if quitTextBox.collidepoint(mouse):
+            quitText = smallFont.render("Quit",False,"red")
+        else:
+            quitText = smallFont.render("Quit",False,"white")
         
 
         screen.blit(respawnButtonText,(width // 2 - 200, height // 2 - 5))
         screen.blit(pauseText,(width // 2 - 200 ,height // 2 - 150 ))
         screen.blit(infoText,(width // 2 - 200 ,height // 2 + 80 ))
-
+        screen.blit(quitText,(width // 2 - 200,height // 2 + 160))
 
 
         clock.tick(60)
@@ -218,17 +234,15 @@ while run :
                 spawnCellRed()
 
 
-    screen.fill("black")
     #print(num_cells)
 
     
+    screen.fill("black")
 
     for i in range(num_cells):
         direction = random.choice(["RIGHT","LEFT","UP","DOWN"])
 
         col,row = cells[i]
-
-        new_col,new_row = col,row
 
         if direction == "RIGHT" and random.random() > rightTurn :
             if col < cols - 1:
@@ -294,6 +308,38 @@ while run :
 
     spawnGrid(screen)
 
+    # BLAUE ZELLEN
+    for i in range(numBlueCells):
+        direction3 = random.choice(["RIGHT","LEFT","UP","DOWN"])
+
+        col3,row3 = blueCells[i]
+
+        if direction3 == "RIGHT" and  0 <= col3 and random.random() > rightTurn:
+            if col3 < cols - 1:
+                col3 += speedGreen
+            else:
+                direction3 = "LEFT"
+
+        elif direction3 == "LEFT" and col3 > 0 and col3 < cols and random.random() > leftTurn:
+            if col3 > 0:
+                col3 -= speedGreen 
+            else:
+                direction3 = "RIGHT"
+
+        elif direction3 == "UP" and row3 > 0 and 0 <= row3 and random.random() > upTurn:
+            if row3 > 0:
+                row3 -= speedGreen
+            else:
+                direction3 = "DOWN"
+
+        elif direction3 == "DOWN" and row3 < rows -1 and row3 < rows and random.random() > downTurn:
+            if row3 < rows - 1:
+                row3 += speedGreen
+            else:
+                direction3 = "UP"
+        
+
+        blueCells[i] = col3,row3
 
 
     
@@ -301,36 +347,21 @@ while run :
 
     for row2,col2 in redCells:
         redCell = pygame.draw.rect(screen,"red",(col2 * cell_size ,row2 * cell_size ,cell_size,cell_size))
-        areaDetect = pygame.draw.rect(screen,"black",(col2 * cell_size - 40,row2 * cell_size - 40,cell_size + 300,cell_size + 100),1)
-
+        #areaDetect = pygame.draw.rect(screen,"black",(col2 * cell_size - 40,row2 * cell_size - 40,cell_size + 300,cell_size + 100),1)
+    
+    
     for row,col in cells:
         greenCell = pygame.draw.rect(screen,bodyColor,(col * cell_size ,row * cell_size ,bodySize,bodySize))
-        box = pygame.draw.rect(screen,"black",(col * cell_size,row * cell_size,20,20),2)
+        #greenRect = pygame.Rect(col * cell_size, row * cell_size,bodySize,bodySize)
 
-
-        
-
-
-
-        
         # Die gesamten Grünen Zellen prüfen
         for g_row, g_col in cells:
             greenRect = pygame.Rect(g_col * cell_size, g_row * cell_size,bodySize,bodySize)
             if redCell.colliderect(greenRect):
-                    num_cells -= 1
-                    cells.remove([g_row,g_col])
-                    break
+                num_cells -= 1
+                cells.remove([g_row,g_col])
+                break
 
-            elif greenRect.colliderect(areaDetect):
-                for row,col in redCells:
-                    try:
-                        while cells[i] != redCells[i]:
-                            row = g_row
-                            col = g_col
-                            break
-                    except Exception as e:
-                        print(f"Program Error: Platziere die Rote Zelle nicht auf der Grünen! {e}")
-                        sys.exit(0)
 
             # Überbevölkerung
             elif num_cells >= 250:
@@ -343,10 +374,18 @@ while run :
                 except Exception as e:
                     print(e)
 
-            else:
-                speed = 1
+    for g_row,g_col in redCells:
+        if num_cells == 0:
+            print("Rote Zellen sterben")
+            time.sleep(0.1)
+            numRedCells -= 1
+            redCells.remove((g_row,g_col))
+
+    
 
     screen.blit(cellAliveText,(10,10))
+    
+
 
     #print(collsion)
     #print(num_cells)
