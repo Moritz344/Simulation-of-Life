@@ -7,8 +7,14 @@ import pygame
 
 # SPAGHETTI CODE
 
+<<<<<<< HEAD
 # TODO: FORTPFLANZUNG
 
+=======
+# IDEE: Predator können satt werden und die grünen zellen nicht mehr essen
+# IDEE: Grüne Zellen können orangene Zellen herstellen die Predator töten
+# IDEE: Wurm zellen?
+>>>>>>> 5d349904dda16cd71f09abed00f8bda5d34e1191
 
 pygame.init()
 
