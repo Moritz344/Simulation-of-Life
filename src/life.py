@@ -7,8 +7,8 @@ import pygame
 
 # SPAGHETTI CODE
 
-# IDEE: Predator können satt werden und die grünen zellen nicht mehr essen
-# IDEE: Grüne Zellen können orangene Zellen herstellen die Predator töten
+# TODO: FORTPFLANZUNG
+
 
 pygame.init()
 
@@ -27,6 +27,13 @@ screen = pygame.display.set_mode((screenWidth,screenHeight))
 caption = pygame.display.set_caption("Game Of Life")
 clock = pygame.time.Clock()
 
+wormSizex = 20
+wormSizey = 20
+
+greenCellTimer = pygame.time.get_ticks()
+timerDurationGreen = 1000
+
+
 if screenWidth == 800 and screenHeight == 610:
     rows = 50
     cols = 50
@@ -44,6 +51,7 @@ num_cells =  1
 numRedCells = 1 
 numBlueCells = 0
 killOnes = False
+
 
 speedGreen = 1
 speedRed = 1
@@ -242,6 +250,7 @@ while run :
     for i in range(num_cells):
         direction = random.choice(["RIGHT","LEFT","UP","DOWN"])
 
+        
         col,row = cells[i]
 
         if direction == "RIGHT" and random.random() > rightTurn :
@@ -270,6 +279,20 @@ while run :
         # Update die Position der aktuellen Zelle
         cells[i] = [col,row]
 
+    # FORTPFLANZUNG
+    def fortpflanzung():
+        global cells,num_cells,greenCellTimer
+        elapsedTime = pygame.time.get_ticks() - greenCellTimer
+        for row,col in cells:
+            if elapsedTime >= timerDurationGreen:
+                #print("Timer beim Maximum!")
+                greenCellTimer = pygame.time.get_ticks()
+
+                num_cells += 1
+                cells.append([col,row])
+                break
+
+    fortpflanzung()
 
     for i in range(numRedCells):
         direction2 = random.choice(["RIGHT","LEFT","UP","DOWN"])
@@ -347,12 +370,10 @@ while run :
 
     for row2,col2 in redCells:
         redCell = pygame.draw.rect(screen,"red",(col2 * cell_size ,row2 * cell_size ,cell_size,cell_size))
-        #areaDetect = pygame.draw.rect(screen,"black",(col2 * cell_size - 40,row2 * cell_size - 40,cell_size + 300,cell_size + 100),1)
     
     
     for row,col in cells:
-        greenCell = pygame.draw.rect(screen,bodyColor,(col * cell_size ,row * cell_size ,bodySize,bodySize))
-        #greenRect = pygame.Rect(col * cell_size, row * cell_size,bodySize,bodySize)
+        greenCell = pygame.draw.rect(screen,bodyColor,(col * cell_size ,row * cell_size ,wormSizex,wormSizey))
 
         # Die gesamten Grünen Zellen prüfen
         for g_row, g_col in cells:
