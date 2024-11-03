@@ -9,6 +9,7 @@ import pygame
 
 # IDEE: Predator können satt werden und die grünen zellen nicht mehr essen
 # IDEE: Grüne Zellen können orangene Zellen herstellen die Predator töten
+# IDEE: Wurm zellen?
 
 pygame.init()
 
