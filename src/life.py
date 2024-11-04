@@ -2,7 +2,6 @@ import time
 import random
 import sys
 import pygame
-<<<<<<< HEAD
 import customtkinter as ctk
 
 # SPAGHETTI CODE
@@ -11,7 +10,7 @@ import customtkinter as ctk
 
 # IDEE: ALTERUNG
 # IDEE: /
-=======
+
 
 # Letzte Bearbeitung: 03.11.24
 
@@ -21,8 +20,6 @@ import customtkinter as ctk
 # IDEE: Predator können satt werden und die grünen zellen nicht mehr essen
 # IDEE: Grüne Zellen können orangene Zellen herstellen die Predator töten
 # IDEE: Wurm zellen?
-
->>>>>>> f93d20daf989da7258ef45186dfe373514b42d17
 
 pygame.init()
 
