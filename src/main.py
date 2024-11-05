@@ -2,27 +2,9 @@ import time
 import random
 import sys
 import pygame
-<<<<<<< HEAD
-import customtkinter as ctk
 
 # SPAGHETTI CODE
 
-# TODO: FORTPFLANZUNG
-
-# IDEE: ALTERUNG
-# IDEE: /
-=======
-
-# Letzte Bearbeitung: 03.11.24
-
-# SPAGHETTI CODE
-# TODO: FORTPFLANZUNG
-
-# IDEE: Predator können satt werden und die grünen zellen nicht mehr essen
-# IDEE: Grüne Zellen können orangene Zellen herstellen die Predator töten
-# IDEE: Wurm zellen?
-
->>>>>>> f93d20daf989da7258ef45186dfe373514b42d17
 
 pygame.init()
 
@@ -49,6 +31,9 @@ wormSizey = 20
 greenCellTimer = pygame.time.get_ticks()
 timerDurationGreen = 10000
 
+foodTimer = pygame.time.get_ticks()
+foodTimerDuration = 1000
+
 
 if screenWidth == 800 and screenHeight == 610:
     rows = 50
@@ -65,9 +50,10 @@ num_cells =  1
 numRedCells = 1 
 numBlueCells = 0
 killOnes = False
-age = 0
 nameTagColor = "white"
-nameTagVisible = True
+nameTagVisible = False
+
+worldEnd = False
 
 speedGreen = 1
 speedRed = 1
@@ -92,6 +78,18 @@ redCells = [[random.randint(0,cols - 1),random.randint(0,rows - 1)] for _ in ran
 blueCells = [[random.randint(0,cols - 1),random.randint(0,rows - 1)] for _ in range(numBlueCells)]
 
 
+def worldTimer():
+
+        timer = pygame.time.get_ticks()
+        timer = timer // 1000
+        
+        timerText = font.render(f"World timer: {timer}s",True,"white")
+        screen.blit(timerText,(335,5))
+
+        return timer
+
+        #print(timer)
+
 def spawnGrid(screen):
     global x,y
     for breite in range(rows):
@@ -101,8 +99,6 @@ def spawnGrid(screen):
             y = höhe  * cell_size
 
             pygame.draw.rect(screen,(30,32,25),(x,y,cell_size,cell_size),1)
-
-
 
 def spawnCell():
     global num_cells
@@ -114,7 +110,7 @@ def spawnCell():
     row = mouse_y // cell_size
 
 
-    print(col ,row )
+    #print(col ,row )
     
     # GÜLTIGEN BEREICH SPAWNEN
     if 0 <= col < cols and 0 <= row < rows:
@@ -132,18 +128,14 @@ def spawnCellRed():
     row = mouse_y // cell_size
 
 
-    print(col ,row )
+    #print(col ,row )
     
     # GÜLTIGEN BEREICH SPAWNEN
     if 0 <= col < cols and 0 <= row < rows:
         redCells.append([row , col ])
         numRedCells += 1
 
-def spawnFood():
-    foodx = random.randint(0,cols - 1)
-    foody = random.randint(0, rows - 1)
-    print(foodx,foody)
-    food = pygame.draw.rect(screen,"blue",(foodx * cell_size,foody * cell_size ,cell_size,cell_size))
+
 
 
 def infoScreen():
@@ -282,15 +274,18 @@ while run :
         # NAMENSCHILDER
         
     screen.fill((30,32,25))
+
     
+
     def drawNames():
-        global nameTagVisible,nameTagColor
-        text = "cell"
-        text_2 = "cell_2"
+        global nameTagVisible,nameTagColor,numbers,age
+
+        text = f"cell "
+        text_2 = f"cell_2 "
+        
+
         
         if nameTagVisible :
-            text = "cell"
-            text_2 = "cell_2"
             nameTagColor = (255,255,255)
         else:
             text = ""
@@ -302,10 +297,14 @@ while run :
 
         for g_row,g_col in cells:
             screen.blit(greenCellTextName,(g_col * cell_size - 5,g_row * cell_size - 25))
+            
+
 
         for g_row,g_col in redCells:
-            screen.blit(redCellTextName,(g_col * cell_size - 5,g_row * cell_size - 25))
+           screen.blit(redCellTextName,(g_col * cell_size - 5,g_row * cell_size - 25))
     
+
+
     def greenCellMovement():
         for i in range(num_cells):
 
@@ -359,6 +358,15 @@ while run :
 
     fortpflanzung()
     
+    def spawnFood():
+        elapsedTime = pygame.get_ticks() - foodTimer
+        foodx = random.randint(0,cols - 1)
+        foody = random.randint(0,rows - 1)
+        print(foodx,foody)
+        food = pygame.draw.rect(screen,"blue",(foodx * cell_size ,foody * cell_size,cell_size,cell_size)
+        
+
+
     def redCellMovement():
         for i in range(numRedCells):
             direction2 = random.choice(["RIGHT","LEFT","UP","DOWN"])
@@ -465,17 +473,27 @@ while run :
 
     for g_row,g_col in redCells:
         if num_cells == 0:
+            worldEnd = True
             print("Rote Zellen sterben")
             time.sleep(0.1)
             numRedCells -= 1
             redCells.remove((g_row,g_col))
+        else:
+            worldEnd = False
 
+    if not worldEnd:
+        worldTimer()
+    else:
+        deadEnd = bigFont.render("World ended.",True,"white")
+        screen.blit(deadEnd,(100,250))
     
 
     screen.blit(cellAliveText,(10,10))
     
+    
 
 
+    spawnFood()
     drawNames()
     #print(collsion)
     #print(num_cells)
