@@ -3,8 +3,6 @@ import random
 import sys
 import pygame
 
-# SPAGHETTI CODE
-
 
 pygame.init()
 
@@ -359,11 +357,11 @@ while run :
     fortpflanzung()
     
     def spawnFood():
-        elapsedTime = pygame.get_ticks() - foodTimer
+        elapsedTime = pygame.time.get_ticks() - foodTimer
         foodx = random.randint(0,cols - 1)
         foody = random.randint(0,rows - 1)
         print(foodx,foody)
-        food = pygame.draw.rect(screen,"blue",(foodx * cell_size ,foody * cell_size,cell_size,cell_size)
+        food = pygame.draw.rect(screen,"blue",(foodx * cell_size ,foody * cell_size,cell_size,cell_size))
         
 
 
@@ -493,7 +491,7 @@ while run :
     
 
 
-    spawnFood()
+    #spawnFood()
     drawNames()
     #print(collsion)
     #print(num_cells)
