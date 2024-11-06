@@ -6,6 +6,9 @@ import pygame
 
 pygame.init()
 
+# TODO: Rote zellen können auch blaue töten
+# IDEE: Rote Zellen können sich vermehren? 
+
 # FONT
 pygame.font.init()
 fontSize = 20
@@ -13,7 +16,7 @@ font = pygame.font.Font("MinecraftRegular.otf",fontSize)
 bigFont = pygame.font.Font("MinecraftRegular.otf",100)
 smallFont = pygame.font.Font("MinecraftRegular.otf",50)
 normalFont = pygame.font.Font("MinecraftRegular.otf",25)
-
+diffFont = pygame.font.Font("MinecraftRegular.otf",80)
 text_farbe = (255,255,255)
 
 
@@ -30,8 +33,10 @@ greenCellTimer = pygame.time.get_ticks()
 timerDurationGreen = 10000
 
 foodTimer = pygame.time.get_ticks()
-foodTimerDuration = 1000
+foodTimerDuration = 10000
 
+deathTimer = pygame.time.get_ticks()
+deathTimerDuration = 5000
 
 if screenWidth == 800 and screenHeight == 610:
     rows = 50
@@ -52,6 +57,7 @@ nameTagColor = "white"
 nameTagVisible = False
 
 worldEnd = False
+ateFood = True
 
 speedGreen = 1
 speedRed = 1
@@ -81,12 +87,34 @@ def worldTimer():
         timer = pygame.time.get_ticks()
         timer = timer // 1000
         
-        timerText = font.render(f"World timer: {timer}s",True,"white")
-        screen.blit(timerText,(335,5))
+        timerText = font.render(f"{timer}s",True,"white")
+        screen.blit(timerText,(750,5))
 
         return timer
 
-        #print(timer)
+def worldEnding():
+    quitButtonBox = pygame.draw.rect(screen,(30,32,25),(300,400,220,100))
+    for event in pygame.event.get():
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if quitButtonBox.collidepoint(event.pos):
+                sys.exit("Bye!")
+
+
+    deadEnd = bigFont.render("World ended.",True,"white")
+    
+    mouse = pygame.mouse.get_pos()
+    quitButton = font.render("QUIT",True,"white")
+
+    if quitButtonBox.collidepoint(mouse):
+        quitButton = diffFont.render("QUIT",True,"red")
+    else:
+        quitButton = diffFont.render("QUIT",True,"white")
+
+
+    screen.blit(deadEnd,(100,250))
+    screen.blit(quitButton,(300,400))
+
+
 
 def spawnGrid(screen):
     global x,y
@@ -150,7 +178,7 @@ def infoScreen():
         screen.fill("black")
         text = "This Game simulates small pixel living in a small grid."
         text_2 = "You can spawn cells with your mouse buttons."
-        text_3 = "You can also respawn the cells in a random position with <SPACE>"
+        text_3 = "You can also respawn the cells in a random position with SPACE"
 
         informationHeader = bigFont.render("Game Of Life",True,"white")
         infoText = normalFont.render(text,False,"white")
@@ -255,7 +283,7 @@ while run :
             if event.key == pygame.K_SPACE:
                 cells = [[random.randint(0, cols - 1),random.randint(0,rows - 1)] for _ in range(num_cells)]
                 redCells = [[random.randint(0,cols - 1),random.randint(0,rows - 1)] for _ in range(numRedCells)]
-
+                blueCells = [[random.randint(0,cols - 1),random.randint(0,rows - 1)] for _ in range(numBlueCells)]
                 print("random seed ")
             if event.key == pygame.K_ESCAPE:
                 pauseScreen(screenWidth,screenHeight,bigFont)
@@ -263,9 +291,11 @@ while run :
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
-                spawnCell()
+                if not worldEnd:
+                    spawnCell()
             if event.button == 3:
-                spawnCellRed()
+                if not worldEnd:
+                    spawnCellRed()
 
 
     #print(num_cells)
@@ -356,14 +386,54 @@ while run :
 
     fortpflanzung()
     
-    def spawnFood():
-        elapsedTime = pygame.time.get_ticks() - foodTimer
-        foodx = random.randint(0,cols - 1)
-        foody = random.randint(0,rows - 1)
-        print(foodx,foody)
-        food = pygame.draw.rect(screen,"blue",(foodx * cell_size ,foody * cell_size,cell_size,cell_size))
-        
+    def hungerTodRed(deathTimer,deathTimerDuration,ateFood,numRedCells):
+        # global deathTimer,deathTimerDuration
 
+        elapsedTime3 = pygame.time.get_ticks() - deathTimer
+    
+        # Timer zurücksetzen wenn ateFood True ist
+        if ateFood:
+            deathTimer = pygame.time.get_ticks()
+            # print("nicht gelöscht!")
+
+        # Wenn Timer erreicht ist und ateFood == False dann löschen
+        if elapsedTime3 >= deathTimerDuration and not ateFood:
+                deathTimer = pygame.time.get_ticks()
+            
+                numRedCells -= 1
+                for row,col in redCells:
+                    if (row,col) in redCells:
+                        print("gelöscht!")
+                        redCells.remove((row,col))
+                        break
+
+        elif elapsedTime3 >= deathTimerDuration and ateFood:
+            deathTimer = pygame.get_ticks()
+            
+        # print(elapsedTime3)
+
+
+        # print(elapsedTime3)
+
+        return deathTimer,deathTimerDuration,ateFood,numRedCells
+
+    deathTimer,deathTimerDuration,ateFood,numRedCells = hungerTodRed(deathTimer,deathTimerDuration,ateFood,numRedCells)
+
+
+    def spawnFood():
+        global foodTimer,foodTimerDuration,numBlueCells
+
+        elapsedTime2 = pygame.time.get_ticks() - foodTimer
+        if elapsedTime2 >= foodTimerDuration:
+            foodTimer = pygame.time.get_ticks()
+            numBlueCells += 1
+            for col,row in blueCells:
+                blueCells.append([col,row])
+                break
+        # print(elapsedTime2)
+
+
+    spawnFood()
 
     def redCellMovement():
         for i in range(numRedCells):
@@ -405,60 +475,69 @@ while run :
     spawnGrid(screen)
 
     # BLAUE ZELLEN
-    for i in range(numBlueCells):
-        direction3 = random.choice(["RIGHT","LEFT","UP","DOWN"])
+    def blueCellMovement():
+        for i in range(len(blueCells)):
+            direction3 = random.choice(["RIGHT","LEFT","UP","DOWN"])
 
-        col3,row3 = blueCells[i]
+            col3,row3 = blueCells[i]
 
-        if direction3 == "RIGHT" and  0 <= col3 and random.random() > rightTurn:
-            if col3 < cols - 1:
-                col3 += speedGreen
-            else:
-                direction3 = "LEFT"
+            if direction3 == "RIGHT" and  0 <= col3 and random.random() > rightTurn:
+                if col3 < cols - 1:
+                    col3 += speedGreen
+                else:
+                    direction3 = "LEFT"
 
-        elif direction3 == "LEFT" and col3 > 0 and col3 < cols and random.random() > leftTurn:
-            if col3 > 0:
-                col3 -= speedGreen 
-            else:
-                direction3 = "RIGHT"
+            elif direction3 == "LEFT" and col3 > 0 and col3 < cols and random.random() > leftTurn:
+                if col3 > 0:
+                    col3 -= speedGreen 
+                else:
+                    direction3 = "RIGHT"
 
-        elif direction3 == "UP" and row3 > 0 and 0 <= row3 and random.random() > upTurn:
-            if row3 > 0:
-                row3 -= speedGreen
-            else:
-                direction3 = "DOWN"
+            elif direction3 == "UP" and row3 > 0 and 0 <= row3 and random.random() > upTurn:
+                if row3 > 0:
+                    row3 -= speedGreen
+                else:
+                    direction3 = "DOWN"
 
-        elif direction3 == "DOWN" and row3 < rows -1 and row3 < rows and random.random() > downTurn:
-            if row3 < rows - 1:
-                row3 += speedGreen
-            else:
-                direction3 = "UP"
+            elif direction3 == "DOWN" and row3 < rows -1 and row3 < rows and random.random() > downTurn:
+                if row3 < rows - 1:
+                    row3 += speedGreen
+                else:
+                    direction3 = "UP"
         
+            blueCells[i] = col3,row3
 
-        blueCells[i] = col3,row3
-
+    blueCellMovement()
 
     # Text
-    cellAliveText = normalFont.render(f"{num_cells}",True,(238,238,238))
+    cellAliveText = normalFont.render(f"green {num_cells}",False,(238,238,238))
+    cellAliveTextBlue = normalFont.render(f"blue {numBlueCells}",False,(238,238,238))
+    cellAliveTextRed = normalFont.render(f"red {numRedCells}",False,(238,238,238))
+    ateFood = False
 
     for row2,col2 in redCells:
         redCell = pygame.draw.rect(screen,cellColor2,(col2 * cell_size ,row2 * cell_size ,cell_size,cell_size))
     
+    for row3,col3 in blueCells:
+        blueCell = pygame.draw.rect(screen,(88,123,127),(col3 * cell_size , row3 * cell_size, wormSizex,wormSizey)) 
     
     for row,col in cells:
         greenCell = pygame.draw.rect(screen,cellColor,(col * cell_size ,row * cell_size ,wormSizex,wormSizey))
 
         # Die gesamten Grünen Zellen prüfen
+        # Rote Zellen essen grüne
         for g_row, g_col in cells:
             greenRect = pygame.Rect(g_col * cell_size, g_row * cell_size,bodySize,bodySize)
             if redCell.colliderect(greenRect):
+                ateFood = True
                 num_cells -= 1
                 cells.remove([g_row,g_col])
                 break
+            # print(ateFood)
 
 
             # Überbevölkerung
-            elif num_cells >= 250:
+            if num_cells >= 250:
                 try:
                     while num_cells >= 250:
                         num_cells -= 1
@@ -482,16 +561,29 @@ while run :
     if not worldEnd:
         worldTimer()
     else:
-        deadEnd = bigFont.render("World ended.",True,"white")
-        screen.blit(deadEnd,(100,250))
-    
+        worldEnding()
+
+
+    def greenCellEating():
+        global numBlueCells
+        for row,col in blueCells:
+            blueCellRect = pygame.Rect(col * cell_size,row * cell_size,cell_size,cell_size)
+            if greenCell.colliderect(blueCellRect):
+                numBlueCells -= 1
+                blueCells.remove((row,col))
+                break
+
+
+            
+    greenCellEating()
 
     screen.blit(cellAliveText,(10,10))
+    screen.blit(cellAliveTextBlue,(10,50))
+    screen.blit(cellAliveTextRed,(10,80))
     
     
 
 
-    #spawnFood()
     drawNames()
     #print(collsion)
     #print(num_cells)
