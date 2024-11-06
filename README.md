@@ -22,10 +22,13 @@ Mit der Linken Maustaste kannst du Grüne Zellen spawnen mit der rechten die Rot
 # Zellen Und Deren Eigenschaften
 
 ### Grüne Zellen 
-Friedliche dumme Zellen.
+- Friedliche dumme Zellen.
+- können sich vermehren
+- Sterben an Überbevölkerung
 
 ### Rote Zellen
-Aggressive Zellen die jede Grüne Zelle töten.
+- Aggressive Zellen die alles töten.
+- Können verhungern
 
 # Zukunft
 In Zukunft wird das Projekt wachsen.
