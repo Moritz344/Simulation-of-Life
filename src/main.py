@@ -49,12 +49,34 @@ bodySize = 18
 cell_size = 18
 max_cells = 100
 multiplier = 1
-num_cells =  1
-numRedCells = 1 
-numBlueCells = 0
+num_cells =  random.randint(1,10)
+numRedCells = random.randint(1,10)
+numBlueCells = random.randint(1,10)
 killOnes = False
 nameTagColor = "white"
 nameTagVisible = False
+
+bacterial_names = [
+    "vulcanus",
+    "draconis",
+    "ferno",
+    "acidophilus",
+    "frostii",
+    "neptus",
+    "thorii",
+    "luxii",
+    "radicatus",
+    "hydrophilus",
+    "xylonii",
+    "aurelia",
+    "germinans",
+    "tempestus",
+    "noctis"
+]
+
+text = random.choice(bacterial_names)
+text_2 = random.choice(bacterial_names)
+text_3 = random.choice(bacterial_names)
 
 worldEnd = False
 ateFood = True
@@ -304,24 +326,18 @@ while run :
     screen.fill((30,32,25))
 
     
-
     def drawNames():
-        global nameTagVisible,nameTagColor,numbers,age
-
-        text = f"cell "
-        text_2 = f"cell_2 "
+        global nameTagVisible,nameTagColor,numbers,age,text,text_2,text_3
         
 
-        
-        if nameTagVisible :
+        if nameTagVisible:
             nameTagColor = (255,255,255)
         else:
-            text = ""
-            text_2 = ""
             nameTagColor = (30,32,25)
 
         greenCellTextName = font.render(text,False,nameTagColor)
         redCellTextName = font.render(text_2,False,nameTagColor)
+        blueCellName = font.render(text_3,False,nameTagColor)
 
         for g_row,g_col in cells:
             screen.blit(greenCellTextName,(g_col * cell_size - 5,g_row * cell_size - 25))
@@ -330,7 +346,9 @@ while run :
 
         for g_row,g_col in redCells:
            screen.blit(redCellTextName,(g_col * cell_size - 5,g_row * cell_size - 25))
-    
+        
+        for g_row,g_col in blueCells:
+           screen.blit(blueCellName,(g_col * cell_size - 5,g_row * cell_size - 25))
 
 
     def greenCellMovement():
@@ -397,7 +415,7 @@ while run :
             # print("nicht gelöscht!")
 
         # Wenn Timer erreicht ist und ateFood == False dann löschen
-        if elapsedTime3 >= deathTimerDuration and not ateFood:
+        if elapsedTime3 >= deathTimerDuration and not ateFood and numRedCells >= 1:
                 deathTimer = pygame.time.get_ticks()
             
                 numRedCells -= 1
@@ -407,8 +425,8 @@ while run :
                         redCells.remove((row,col))
                         break
 
-        elif elapsedTime3 >= deathTimerDuration and ateFood:
-            deathTimer = pygame.get_ticks()
+        elif elapsedTime3 >= deathTimerDuration and ateFood and numRedCells >= 1:
+            deathTimer = pygame.time.get_ticks()
             
         # print(elapsedTime3)
 
@@ -524,8 +542,7 @@ while run :
     for row,col in cells:
         greenCell = pygame.draw.rect(screen,cellColor,(col * cell_size ,row * cell_size ,wormSizex,wormSizey))
 
-        # Die gesamten Grünen Zellen prüfen
-        # Rote Zellen essen grüne
+        # Rote Zellen essen grüne Zellen
         for g_row, g_col in cells:
             greenRect = pygame.Rect(g_col * cell_size, g_row * cell_size,bodySize,bodySize)
             if redCell.colliderect(greenRect):
@@ -534,6 +551,15 @@ while run :
                 cells.remove([g_row,g_col])
                 break
             # print(ateFood)
+    # Rote Zellen essen blaue Zellen
+    for row,col in blueCells:
+        blueRect = pygame.Rect(col * cell_size, row * cell_size,bodySize,bodySize)
+        if redCell.colliderect(blueRect):
+            ateFood = True
+            numBlueCells -= 1
+            blueCells.remove((row,col))
+            break
+
 
 
             # Überbevölkerung
@@ -577,7 +603,7 @@ while run :
             
     greenCellEating()
 
-    screen.blit(cellAliveText,(10,10))
+    screen.blit(cellAliveText,(10,20))
     screen.blit(cellAliveTextBlue,(10,50))
     screen.blit(cellAliveTextRed,(10,80))
     
