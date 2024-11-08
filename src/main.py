@@ -6,8 +6,16 @@ import pygame
 
 pygame.init()
 
-# TODO: Rote zellen können auch blaue töten
-# IDEE: Rote Zellen können sich vermehren? 
+# Grüne Zellen :
+# - können sich vermehren
+
+# Blaue Zellen:
+# - können sich vermehren
+
+# Rote Zellen:
+# - töten Blaue und Grüne Zellen
+# - können sich vermehren
+# - können an Hunger sterben
 
 # FONT
 pygame.font.init()
@@ -29,14 +37,18 @@ clock = pygame.time.Clock()
 wormSizex = 20
 wormSizey = 20
 
+# Timer 1000 = 1sk
 greenCellTimer = pygame.time.get_ticks()
 timerDurationGreen = 10000
 
 foodTimer = pygame.time.get_ticks()
-foodTimerDuration = 10000
+foodTimerDuration = 12000
 
 deathTimer = pygame.time.get_ticks()
-deathTimerDuration = 5000
+deathTimerDuration = 7000 
+
+redCellTimer = pygame.time.get_ticks()
+timerDurationRed = 15000
 
 if screenWidth == 800 and screenHeight == 610:
     rows = 50
@@ -109,7 +121,7 @@ def worldTimer():
         timer = pygame.time.get_ticks()
         timer = timer // 1000
         
-        timerText = font.render(f"{timer}s",True,"white")
+        timerText = font.render(f"{timer}s",True,"red")
         screen.blit(timerText,(750,5))
 
         return timer
@@ -332,24 +344,21 @@ while run :
 
         if nameTagVisible:
             nameTagColor = (255,255,255)
-        else:
-            nameTagColor = (30,32,25)
+        if not nameTagVisible:
+            nameTagColor = (30,32,25,0)
 
         greenCellTextName = font.render(text,False,nameTagColor)
         redCellTextName = font.render(text_2,False,nameTagColor)
         blueCellName = font.render(text_3,False,nameTagColor)
 
         for g_row,g_col in cells:
-            screen.blit(greenCellTextName,(g_col * cell_size - 5,g_row * cell_size - 25))
-            
-
+            screen.blit(greenCellTextName,(g_col * cell_size - 20,g_row * cell_size - 25))
 
         for g_row,g_col in redCells:
-           screen.blit(redCellTextName,(g_col * cell_size - 5,g_row * cell_size - 25))
+           screen.blit(redCellTextName,(g_col * cell_size - 20,g_row * cell_size - 25))
         
         for g_row,g_col in blueCells:
-           screen.blit(blueCellName,(g_col * cell_size - 5,g_row * cell_size - 25))
-
+           screen.blit(blueCellName,(g_col * cell_size - 20,g_row * cell_size - 25))
 
     def greenCellMovement():
         for i in range(num_cells):
@@ -403,6 +412,20 @@ while run :
                 break
 
     fortpflanzung()
+
+    def fortpflanzungRed(redCellTimer,timerDurationRed,numRedCells):
+        elapsedTime = pygame.time.get_ticks() - redCellTimer
+
+        if elapsedTime >= timerDurationRed:
+            numRedCells += 1
+            redCellTimer = pygame.time.get_ticks()
+            for row,col in redCells:
+                redCells.append((row,col))
+                break
+
+        return redCellTimer,timerDurationRed,numRedCells
+
+    redCellTimer,timerDurationRed,numRedCells = fortpflanzungRed(redCellTimer,timerDurationRed,numRedCells)
     
     def hungerTodRed(deathTimer,deathTimerDuration,ateFood,numRedCells):
         # global deathTimer,deathTimerDuration
@@ -528,9 +551,9 @@ while run :
     blueCellMovement()
 
     # Text
-    cellAliveText = normalFont.render(f"green {num_cells}",False,(238,238,238))
-    cellAliveTextBlue = normalFont.render(f"blue {numBlueCells}",False,(238,238,238))
-    cellAliveTextRed = normalFont.render(f"red {numRedCells}",False,(238,238,238))
+    cellAliveText = normalFont.render(f"green {num_cells}",False,cellColor)
+    cellAliveTextBlue = normalFont.render(f"blue {numBlueCells}",False,(88,123,127))
+    cellAliveTextRed = normalFont.render(f"red {numRedCells}",False,cellColor2)
     ateFood = False
 
     for row2,col2 in redCells:
@@ -575,7 +598,7 @@ while run :
 
 
     for g_row,g_col in redCells:
-        if num_cells == 0:
+        if num_cells == 0 and numBlueCells == 0:
             worldEnd = True
             print("Rote Zellen sterben")
             time.sleep(0.1)
@@ -589,6 +612,8 @@ while run :
     else:
         worldEnding()
 
+    if nameTagVisible:
+        drawNames()
 
     def greenCellEating():
         global numBlueCells
@@ -610,7 +635,6 @@ while run :
     
 
 
-    drawNames()
     #print(collsion)
     #print(num_cells)
     #print(numRedCells)
