@@ -25,6 +25,7 @@ Mit der Linken Maustaste kannst du Grüne Zellen spawnen mit der rechten die Rot
 - Friedliche dumme Zellen.
 - können sich vermehren
 - Sterben an Überbevölkerung
+- können verhungern
 
 ### Rote Zellen
 - Aggressive Zellen die alles töten.
