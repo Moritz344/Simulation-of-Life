@@ -1,7 +1,7 @@
 # Simulation-of-Life
 Pixel Simulieren Dinge.
 
-# So sieht der Hase aus:
+# So sieht es aus:
 
 
 
@@ -30,9 +30,12 @@ Mit der Linken Maustaste kannst du Grüne Zellen spawnen mit der rechten die Rot
 - Aggressive Zellen die alles töten.
 - Können verhungern
 
+### Blaue Zellen
+- können sich vermehren
+
 # Zukunft
 In Zukunft wird das Projekt wachsen.
-Wenn ihr Ideen habt dann schreibt mich an per e-mail oder per Pull Request!
+Wenn ihr Ideen habt dann schreibt mich an per e-mail!
 
 # Author
 - @Moritz344
