@@ -1,7 +1,7 @@
 # Simulation-of-Life
 Pixel Simulieren Dinge.
 
-# So sieht der Hase aus:
+# So sieht es aus:
 
 
 
