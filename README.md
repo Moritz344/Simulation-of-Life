@@ -35,7 +35,7 @@ Mit der Linken Maustaste kannst du Grüne Zellen spawnen mit der rechten die Rot
 
 # Zukunft
 In Zukunft wird das Projekt wachsen.
-Wenn ihr Ideen habt dann schreibt mich an per e-mail oder per Pull Request!
+Wenn ihr Ideen habt dann schreibt mich an per e-mail!
 
 # Author
 - @Moritz344
