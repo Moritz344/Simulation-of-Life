@@ -1,7 +1,7 @@
 # Simulation-of-Life
 Pixel Simulieren Dinge.
 
-# So sieht es aus:
+# So sieht es aus: (altes Video)
 
 
 
@@ -25,6 +25,7 @@ Mit der Linken Maustaste kannst du Grüne Zellen spawnen mit der rechten die Rot
 - Friedliche dumme Zellen.
 - können sich vermehren
 - Sterben an Überbevölkerung
+- können verhungern
 
 ### Rote Zellen
 - Aggressive Zellen die alles töten.
