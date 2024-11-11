@@ -2,9 +2,9 @@ import time
 import random
 import sys
 import pygame
+from termcolor import cprint,colored
 
 pygame.init()
-
 # Grüne Zellen :
 # - können sich vermehren
 # - töten blaue zellen
@@ -69,6 +69,7 @@ deathTimerDuration = timerDurationRed // 2
 greenCellTimerDeath = pygame.time.get_ticks()
 greenCellTimerDeathDuration = 8000
 
+# datetime
 
 bodySize = 18
 cell_size = 18
@@ -180,7 +181,7 @@ def spawnCell():
     if 0 <= col < cols and 0 <= row < rows:
         cells.append([row - 1, col - 1])
         num_cells += 1
-        print("spawned green cell with mouse button.")
+        cprint(f"[{num_cells}] spawned green cell with mouse button.","green")
 
 
 def spawnCellRed():
@@ -199,7 +200,7 @@ def spawnCellRed():
         redCells.append([row, col])
         numRedCells += 1
 
-        print("spawned red cell with mouse button.")
+        cprint(f"[{numRedCells}] spawned red cell with mouse button.","red")
 
 
 def infoScreen():
@@ -345,7 +346,6 @@ while run:
 
     # print(num_cells)
     # NAMENSCHILDER
-
     screen.fill((30, 32, 25))
 
     def drawNames():
@@ -415,7 +415,7 @@ while run:
         elapsedTime = pygame.time.get_ticks() - greenCellTimer
         for row, col in cells:
             if elapsedTime >= timerDurationGreen:
-                print("a green cell made a baby")
+                cprint(f"[{num_cells}] a green cell made a baby","green")
                 # print("Timer beim Maximum!")
                 greenCellTimer = pygame.time.get_ticks()
 
@@ -425,23 +425,23 @@ while run:
 
     fortpflanzung()
 
-    def fortpflanzungRed(redCellTimer, timerDurationRed, numRedCells):
+    def fortpflanzungRed(redCellTimer, timerDurationRed, numRedCells,):
         elapsedTime = pygame.time.get_ticks() - redCellTimer
 
         if elapsedTime >= timerDurationRed:
             numRedCells += 1
             redCellTimer = pygame.time.get_ticks()
             for row, col in redCells:
-                print("a red cell made a baby")
+                cprint(f"[{numRedCells}] a red cell made a baby","red")
                 redCells.append((row, col))
                 break
 
-        return redCellTimer, timerDurationRed, numRedCells
+        return redCellTimer, timerDurationRed, numRedCells,
 
-    redCellTimer, timerDurationRed, numRedCells = fortpflanzungRed(
-        redCellTimer, timerDurationRed, numRedCells)
+    redCellTimer, timerDurationRed, numRedCells, = fortpflanzungRed(
+        redCellTimer, timerDurationRed, numRedCells,)
 
-    def hungerTodRed(deathTimer, deathTimerDuration, ateFood, numRedCells):
+    def hungerTodRed(deathTimer, deathTimerDuration, ateFood, numRedCells,):
         # global deathTimer,deathTimerDuration
 
         elapsedTime3 = pygame.time.get_ticks() - deathTimer
@@ -458,7 +458,7 @@ while run:
             numRedCells -= 1
             for row, col in redCells[:]:
                 if (row, col) in redCells:
-                    print("red cell died to starving.")
+                    cprint(f"[{numRedCells}] red cell died to starving.","red")
                     redCells.remove((row, col))
                     break
 
@@ -469,10 +469,10 @@ while run:
 
         # print(elapsedTime3)
 
-        return deathTimer, deathTimerDuration, ateFood, numRedCells
+        return deathTimer, deathTimerDuration, ateFood, numRedCells, 
 
-    deathTimer, deathTimerDuration, ateFood, numRedCells = hungerTodRed(
-        deathTimer, deathTimerDuration, ateFood, numRedCells)
+    deathTimer, deathTimerDuration, ateFood, numRedCells, = hungerTodRed(
+        deathTimer, deathTimerDuration, ateFood, numRedCells,)
 
     def greenCellHungerTod(greenCellTimerDeath, greenCellTimerDeathDuration,num_cells,ateFoodGreen):
         elapsedTime = pygame.time.get_ticks() - greenCellTimerDeath
@@ -488,14 +488,14 @@ while run:
             for row,col in cells:
                 if (row,col) in cells:
                     cells.remove([row,col])
-                    print("green cell died to starving")
+                    cprint(f"[{num_cells}] green cell died to starving","red")
                     break
 
 
         #print(elapsedTime)   
         return greenCellTimerDeath,greenCellTimerDeathDuration,num_cells,ateFoodGreen
 
-    greenCellTimerDeath,greenCellTimerDeathDuration,num_cells,ateFoodGreen = greenCellHungerTod(greenCellTimerDeath,greenCellTimerDeathDuration,num_cells,ateFoodGreen)
+    greenCellTimerDeath,greenCellTimerDeathDuration,num_cells,ateFoodGreen= greenCellHungerTod(greenCellTimerDeath,greenCellTimerDeathDuration,num_cells,ateFoodGreen,)
 
     def spawnFood():
         global foodTimer, foodTimerDuration, numBlueCells
@@ -505,7 +505,7 @@ while run:
             foodTimer = pygame.time.get_ticks()
             numBlueCells += 1
             for col, row in blueCells:
-                print("a blue cell made a baby")
+                cprint(f"[{numBlueCells}] a blue cell made a baby","blue")
                 blueCells.append([col, row])
                 break
 
@@ -623,7 +623,7 @@ while run:
             greenRect = pygame.Rect(g_col * cell_size, g_row * cell_size,
                                     bodySize, bodySize)
             if redCell.colliderect(greenRect):
-                print("red cell ate green cell.")
+                cprint(f"[{numRedCells}] red cell ate green cell.","red")
                 ateFood = True
                 num_cells -= 1
                 cells.remove([g_row, g_col])
@@ -645,7 +645,7 @@ while run:
                     while num_cells >= 250:
                         num_cells -= 1
                         cells.remove(cells[i])
-                        print(f"Es wurden: {num_cells - 250} getötet.")
+                        cprint(f"Es wurden: {num_cells - 250} getötet.","red")
                         break
                 except Exception as e:
                     print(e)
@@ -653,7 +653,7 @@ while run:
     for g_row, g_col in redCells:
         if num_cells == 0 and numBlueCells == 0:
             worldEnd = True
-            print("Rote Zellen sterben")
+            cprint(f"[{numRedCells}] Rote Zellen sterben","red")
             time.sleep(0.1)
             numRedCells -= 1
             redCells.remove((g_row, g_col))
@@ -674,7 +674,7 @@ while run:
             blueCellRect = pygame.Rect(col * cell_size, row * cell_size,
                                        cell_size, cell_size)
             if greenCell.colliderect(blueCellRect):
-                print("green cell ate blue cell")
+                cprint(f"[{num_cells}] green cell ate blue cell","green")
                 ateFoodGreen = True
                 numBlueCells -= 1
                 blueCells.remove((row, col))
