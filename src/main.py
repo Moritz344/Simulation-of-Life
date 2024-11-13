@@ -5,6 +5,9 @@ import pygame
 from termcolor import cprint,colored
 
 pygame.init()
+
+# Zellen aussehen verändern
+
 # Grüne Zellen :
 # - können sich vermehren
 # - töten blaue zellen
@@ -29,15 +32,15 @@ normalFont = pygame.font.Font("MinecraftRegular.otf", 25)
 diffFont = pygame.font.Font("MinecraftRegular.otf", 80)
 text_farbe = (255, 255, 255)
 
-screenWidth = 800
-screenHeight = 610
+screenWidth = 800 
+screenHeight = 610 
 
 #rows = screenWidth // 4
 #cols = screenHeight // 4
 
 # if screenWidth == 800 and screenHeight == 610:
-rows = 50
-cols = 50
+rows = 70 
+cols = 70
 # else:
 # rows = 200
 # cols = 200
@@ -46,8 +49,10 @@ screen = pygame.display.set_mode((screenWidth, screenHeight), pygame.RESIZABLE)
 caption = pygame.display.set_caption("Game Of Life")
 clock = pygame.time.Clock()
 
-wormSizex = 20
-wormSizey = 20
+wormSizex = 10#20
+wormSizey = 10#20
+
+blueCellBodyBlock = 0
 
 # Timer 1000 = 1sk
 greenCellTimer = pygame.time.get_ticks()
@@ -71,8 +76,8 @@ greenCellTimerDeathDuration = 8000
 
 # datetime
 
-bodySize = 18
-cell_size = 18
+bodySize = 10#18
+cell_size = 10#18
 max_cells = 100
 multiplier = 1
 num_cells = random.randint(1, 10)
@@ -120,6 +125,17 @@ redCells = [[random.randint(0, cols - 1),
 blueCells = [[random.randint(0, cols - 1),
               random.randint(0, rows - 1)] for _ in range(numBlueCells)]
 
+colorText = "+--- Logs will appear here ---+"
+colorText = colored(colorText,"red")
+def textAnimation(text: str):
+
+    for char in text:
+        sys.stdout.write(char)
+        sys.stdout.flush()
+        time.sleep(0.1)
+    print()
+
+# textAnimation(colorText)
 
 def worldTimer():
 
@@ -343,6 +359,17 @@ while run:
             if event.button == 3:
                 if not worldEnd:
                     spawnCellRed()
+        elif event.type == pygame.MOUSEWHEEL:
+            if event.y == 1:
+                cell_size += 1
+                wormSizex += 1
+                wormSizey += 1
+                #print("up")
+            else:
+                wormSizex -= 1
+                wormSizey -= 1
+                cell_size -= 1
+                #print("down")
 
     # print(num_cells)
     # NAMENSCHILDER
@@ -607,11 +634,17 @@ while run:
         redCell = pygame.draw.rect(
             screen, cellColor2,
             (col2 * cell_size, row2 * cell_size, cell_size, cell_size))
-
     for row3, col3 in blueCells:
-        blueCell = pygame.draw.rect(
-            screen, (88, 123, 127),
-            (col3 * cell_size, row3 * cell_size, wormSizex, wormSizey))
+        yWert = 10
+        yWertGreen = 10
+        yWertRed = 0
+        yWertOrange = 10
+
+
+        #blueCellBody3 = pygame.draw.rect(screen,"dark green",(col3 * cell_size ,row3 * cell_size + yWert,wormSizex,wormSizey))
+        #blueCellBody2 = pygame.draw.rect(screen,"red",(col3 * cell_size - 10,row3 * cell_size + yWertRed,wormSizex,wormSizey))
+        #blueCellBody = pygame.draw.rect(screen,"orange",(col3 * cell_size - 10,row3 * cell_size + yWertOrange,wormSizex,wormSizey))
+        blueCell = pygame.draw.rect(screen, (88, 123, 127),(col3 * cell_size, row3 * cell_size, wormSizex, wormSizey))
 
     for row, col in cells:
         greenCell = pygame.draw.rect(
