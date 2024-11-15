@@ -32,6 +32,7 @@ normalFont = pygame.font.Font("MinecraftRegular.otf", 25)
 diffFont = pygame.font.Font("MinecraftRegular.otf", 80)
 text_farbe = (255, 255, 255)
 
+
 screenWidth = 800 
 screenHeight = 610 
 
@@ -61,6 +62,10 @@ timerDurationGreen = 10000
 # fortpflanzungs timer blaue zellen
 foodTimer = pygame.time.get_ticks()
 foodTimerDuration = 12000
+
+# Hungertod timer blaue zellen
+deathTimerBlue = pygame.time.get_ticks()
+deathTimerBlueDur = 1000
 
 # fortpflanzungs timer rote Zelle
 redCellTimer = pygame.time.get_ticks()
@@ -100,6 +105,7 @@ text_3 = random.choice(bacterial_names)
 worldEnd = False
 ateFood = True
 ateFoodGreen = True
+ateFoodBlue = True
 
 speedGreen = 1
 speedRed = 1
@@ -359,17 +365,21 @@ while run:
             if event.button == 3:
                 if not worldEnd:
                     spawnCellRed()
-        elif event.type == pygame.MOUSEWHEEL:
+        if event.type == pygame.MOUSEWHEEL:
+            #  Holen der Mausposition vor dem Zoom
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+
             if event.y == 1:
+                # Zoom rein
                 cell_size += 1
                 wormSizex += 1
                 wormSizey += 1
-                #print("up")
             else:
+                # Zoom raus
                 wormSizex -= 1
                 wormSizey -= 1
                 cell_size -= 1
-                #print("down")
+
 
     # print(num_cells)
     # NAMENSCHILDER
@@ -467,6 +477,24 @@ while run:
 
     redCellTimer, timerDurationRed, numRedCells, = fortpflanzungRed(
         redCellTimer, timerDurationRed, numRedCells,)
+
+    def hungerTodBlue(deathTimerBlue,deathTimerBlueDur):
+        elapsedTime = pygame.time.get_ticks() - deathTimerBlue
+
+        if ateFoodBlue:
+            deathTimerBlue = pygame.time.get_ticks()
+        if elapsedTime > deathTimerBlueDur and not ateFoodBlue and numBlueCells >= 2:
+            deathTimerBlue = pygame.time.get_ticks()
+            
+            numBlueCells -= 1
+            for row,col in blueCells:
+                if (row,col) in blueCells:
+                    cprint("died to hunger","blue")
+                    blueCells.remove((row,col))
+                    break
+
+
+
 
     def hungerTodRed(deathTimer, deathTimerDuration, ateFood, numRedCells,):
         # global deathTimer,deathTimerDuration
@@ -629,6 +657,7 @@ while run:
                                          cellColor2)
     ateFood = False
     ateFoodGreen = False
+    ateFoodBlue = False
 
     for row2, col2 in redCells:
         redCell = pygame.draw.rect(
@@ -644,12 +673,12 @@ while run:
         #blueCellBody3 = pygame.draw.rect(screen,"dark green",(col3 * cell_size ,row3 * cell_size + yWert,wormSizex,wormSizey))
         #blueCellBody2 = pygame.draw.rect(screen,"red",(col3 * cell_size - 10,row3 * cell_size + yWertRed,wormSizex,wormSizey))
         #blueCellBody = pygame.draw.rect(screen,"orange",(col3 * cell_size - 10,row3 * cell_size + yWertOrange,wormSizex,wormSizey))
-        blueCell = pygame.draw.rect(screen, (88, 123, 127),(col3 * cell_size, row3 * cell_size, wormSizex, wormSizey))
+        blueCell = pygame.draw.rect(screen, (88, 123, 127),(col3 * cell_size, row3 * cell_size, cell_size, cell_size))
 
     for row, col in cells:
         greenCell = pygame.draw.rect(
             screen, cellColor,
-            (col * cell_size, row * cell_size, wormSizex, wormSizey))
+            (col * cell_size, row * cell_size, cell_size, cell_size))
 
         # Rote Zellen essen grüne Zellen
         for g_row, g_col in cells:
