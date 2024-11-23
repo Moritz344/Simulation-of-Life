@@ -3,9 +3,13 @@ import random
 import sys
 import pygame
 from termcolor import cprint,colored
+from worlds import *
+
+
 
 pygame.init()
 
+world_1()
 # Zellen aussehen verändern
 
 # Grüne Zellen :
@@ -24,7 +28,7 @@ pygame.init()
 
 # FONT
 pygame.font.init()
-fontSize = 20
+fontSize: int =  20
 font = pygame.font.Font("MinecraftRegular.otf", fontSize)
 bigFont = pygame.font.Font("MinecraftRegular.otf", 100)
 smallFont = pygame.font.Font("MinecraftRegular.otf", 50)
@@ -33,15 +37,15 @@ diffFont = pygame.font.Font("MinecraftRegular.otf", 80)
 text_farbe = (255, 255, 255)
 
 
-screenWidth = 800 
-screenHeight = 610 
+screenWidth: int =  800 
+screenHeight: int = 610 
 
 #rows = screenWidth // 4
 #cols = screenHeight // 4
 
 # if screenWidth == 800 and screenHeight == 610:
-rows = 70 
-cols = 70
+rows: int =  70 
+cols: int = 70
 # else:
 # rows = 200
 # cols = 200
@@ -50,10 +54,10 @@ screen = pygame.display.set_mode((screenWidth, screenHeight), pygame.RESIZABLE)
 caption = pygame.display.set_caption("Game Of Life")
 clock = pygame.time.Clock()
 
-wormSizex = 10#20
-wormSizey = 10#20
+wormSizex: int = 10#20
+wormSizey: int = 10#20
 
-blueCellBodyBlock = 0
+blueCellBodyBlock: int = 0
 
 # Timer 1000 = 1sk
 greenCellTimer = pygame.time.get_ticks()
@@ -143,6 +147,24 @@ def textAnimation(text: str):
 
 # textAnimation(colorText)
 
+def worldMenu():
+    run: bool = True
+    while run:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run: bool = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    run: bool = False
+                elif event.key == pygame.K_q:
+                    run: bool = False
+
+
+        screen.fill("black")
+        pygame.display.update()
+        clock.tick()
+
+    
 def worldTimer():
 
     timer = pygame.time.get_ticks()
@@ -258,7 +280,7 @@ def infoScreen():
         pygame.display.update()
         clock.tick(60)
 
-
+from worlds import *
 def pauseScreen(width, height, font):
     global nameTagColor, nameTagVisible, nameTagSurface
     running = True
@@ -285,6 +307,10 @@ def pauseScreen(width, height, font):
                 # Aus und Einschalten von Nametags
                 if nameTagBox.collidepoint(event.pos):
                     nameTagVisible = not nameTagVisible
+                if worldsTextBox.collidepoint(event.pos):
+                    worldMenu()
+                    
+                    
 
         screen.fill((30, 32, 25))
         mouse = pygame.mouse.get_pos()
@@ -301,6 +327,13 @@ def pauseScreen(width, height, font):
             (width // 2 - 200, height // 2 + 80, 220, 70))
         visibleText = "NAMETAG ON"
         nameTagBox = pygame.draw.rect(screen, (30, 32, 25), (0, 0, 220, 50))
+
+        worldsTextBox = pygame.draw.rect(screen,(30,32,25),(width // 2 - 200, height // 2 + 240, 220, 70))
+        
+        if worldsTextBox.collidepoint(mouse):
+            worldsText = smallFont.render("Worlds",True,"green")
+        else:
+            worldsText = smallFont.render("Worlds",True,(141,171,127))
 
         if respawnButtonBox.collidepoint(mouse):
             respawnButtonText = smallFont.render("Continue", True, "green")
@@ -328,6 +361,7 @@ def pauseScreen(width, height, font):
         screen.blit(infoText, (width // 2 - 200, height // 2 + 80))
         screen.blit(quitText, (width // 2 - 200, height // 2 + 160))
         screen.blit(nameTagText, (0, 0))
+        screen.blit(worldsText, (width // 2 - 200, height // 2 + 240))
 
         clock.tick(60)
         pygame.display.update()
@@ -541,7 +575,7 @@ while run:
 
             num_cells -= 1
             for row,col in cells:
-                if (row,col) in cells:
+                if (row,col) in cells and num_cells >= 1:
                     cells.remove([row,col])
                     cprint(f"[{num_cells}] green cell died to starving","red")
                     break
@@ -685,11 +719,12 @@ while run:
             greenRect = pygame.Rect(g_col * cell_size, g_row * cell_size,
                                     bodySize, bodySize)
             if redCell.colliderect(greenRect):
-                cprint(f"[{numRedCells}] red cell ate green cell.","red")
-                ateFood = True
-                num_cells -= 1
-                cells.remove([g_row, g_col])
-                break
+                if num_cells >= 1:
+                    cprint(f"[{numRedCells}] red cell ate green cell.","red")
+                    ateFood = True
+                    num_cells -= 1
+                    cells.remove([g_row, g_col])
+                    break
             # print(ateFood)
     # Rote Zellen essen blaue Zellen
     for row, col in blueCells:
@@ -698,6 +733,7 @@ while run:
         if redCell.colliderect(blueRect):
             ateFood = True
             numBlueCells -= 1
+            cprint(f"[{numBlueCells}] red cell ate blue cell","red")
             blueCells.remove((row, col))
             break
 
