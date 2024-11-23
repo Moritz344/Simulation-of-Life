@@ -5,11 +5,10 @@ import pygame
 from termcolor import cprint,colored
 from worlds import *
 
-
-
 pygame.init()
 
-world_1()
+#world_1()
+
 # Zellen aussehen verändern
 
 # Grüne Zellen :
@@ -49,7 +48,7 @@ cols: int = 70
 # else:
 # rows = 200
 # cols = 200
-
+world2: bool = False
 screen = pygame.display.set_mode((screenWidth, screenHeight), pygame.RESIZABLE)
 caption = pygame.display.set_caption("Game Of Life")
 clock = pygame.time.Clock()
@@ -147,6 +146,85 @@ def textAnimation(text: str):
 
 # textAnimation(colorText)
 
+def world_2():
+    num_cells_2 = 1
+    cells_2 = [[random.randint(0, cols - 1),
+          random.randint(0, rows - 1)] for _ in range(num_cells_2)]
+    run: bool = True
+
+    t: int = 0
+    p: float = 1.15
+    init_cell = num_cells_2
+
+    while run:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run: bool = False
+
+        
+        screen.fill((30, 32, 25))
+        spawnGrid(screen)
+                   
+        t += 1
+        #print(t)
+        new_cell_count = round(init_cell * p ** t) - len(cells_2)
+        print(new_cell_count)
+        for _ in range(new_cell_count):
+            new_cell = [random.randint(0, cols - 1), random.randint(0, rows - 1)]
+            cells_2.append(new_cell)
+        if new_cell_count >= 1:
+            t = 0
+        else:
+            t += 1
+        if new_cell_count == -47001:
+            run: bool = False
+
+        for row,col in cells_2:
+            pygame.draw.rect(screen,"green",(row * cell_size,col * cell_size ,cell_size,cell_size))
+
+
+
+
+
+        def greenCellMovement_2():
+            for i in range(num_cells_2):
+
+                direction = random.choice(["RIGHT", "LEFT", "UP", "DOWN"])
+
+                col, row = cells_2[i]
+
+                if direction == "RIGHT" and random.random() > 0.97:
+                    if col < cols - 1:
+                        col += 1
+                    else:
+                        direction = "LEFT"
+
+                # print(f"moved to the right at {col}")
+                elif direction == "LEFT" and random.random() > 0.97:
+                    if col > 0:
+                        col -= 1
+                    else:
+                        direction = "RIGHT"
+
+                elif direction == "UP" and random.random() > 0.97:
+                    if row > 0:
+                        row -= 1
+                    else:
+                        direction = "DOWN"
+
+                elif direction == "DOWN" and random.random() > 0.97:
+                    if row < rows - 1:
+                        row += 1
+                    else:
+                        direction = "UP"
+
+                # Update die Position der aktuellen Zelle
+                cells_2[i] = [col, row]
+        greenCellMovement_2()
+            
+        pygame.display.update()
+        clock.tick(60)
+
 def worldMenu():
     run: bool = True
     while run:
@@ -158,9 +236,19 @@ def worldMenu():
                     run: bool = False
                 elif event.key == pygame.K_q:
                     run: bool = False
-
-
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if box_1.collidepoint(event.pos):
+                    world_2()
+                    print("klick!")
+        mouse = pygame.mouse.get_pos()
         screen.fill("black")
+        text_1 = smallFont.render("world_2",False,"white")
+        box_1 = pygame.draw.rect(screen,"green",(40,60,200,200),5)
+        if box_1.collidepoint(mouse):
+            box_1 = pygame.draw.rect(screen,"green",(40,60,200,200),5)
+        else:
+            box_1 = pygame.draw.rect(screen,"white",(40,60,200,200),5)
+        screen.blit(text_1,(50,10))
         pygame.display.update()
         clock.tick()
 
@@ -205,8 +293,8 @@ def spawnGrid(screen):
 
             x = breite * cell_size
             y = höhe * cell_size
-
-            pygame.draw.rect(screen, (30, 32, 25),
+            # 30 32 25
+            pygame.draw.rect(screen, (30,32,25),
                              (x, y, cell_size, cell_size), 1)
 
 
@@ -309,7 +397,6 @@ def pauseScreen(width, height, font):
                     nameTagVisible = not nameTagVisible
                 if worldsTextBox.collidepoint(event.pos):
                     worldMenu()
-                    
                     
 
         screen.fill((30, 32, 25))
