@@ -1,5 +1,5 @@
 # Simulation-of-Life
-Pixel Simulieren Dinge.
+In diesem  Projekt geht es um kleine Pixel die verschiedene Eigenschaften und Regeln haben.
 
 # So sieht es aus: (altes Video)
 
