@@ -1,11 +1,12 @@
 # Simulation-of-Life
-Pixel Simulieren Dinge.
+In diesem  Projekt geht es um kleine Pixel die verschiedene Eigenschaften und Regeln haben.
 
 # So sieht es aus: (altes Video)
 
 
 
-https://github.com/user-attachments/assets/9d04239b-c5d3-4c00-9b30-77ad1187becf
+https://github.com/user-attachments/assets/b5fe6c39-87ef-4639-9be3-06e33fac0a7c
+
 
 
 # Usage
@@ -36,7 +37,13 @@ Mit der Linken Maustaste kannst du Grüne Zellen spawnen mit der rechten die Rot
 
 # Zukunft
 In Zukunft wird das Projekt wachsen.
-Wenn ihr Ideen habt dann schreibt mich an per e-mail!
+Wenn ihr Ideen habt dann schreibt mich gerne an per e-mail!
 
 # Author
 - @Moritz344
+
+<a href="https://ko-fi.com/pennti" target="_blank">
+    <img align="center" src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Support me on Ko-fi">
+</a>
+
+<br>
