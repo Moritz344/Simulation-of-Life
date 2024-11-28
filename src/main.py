@@ -60,7 +60,7 @@ blueCellBodyBlock: int = 0
 
 # Timer 1000 = 1sk
 greenCellTimer = pygame.time.get_ticks()
-timerDurationGreen = 10000
+timerDurationGreen = 5000
 
 # fortpflanzungs timer blaue zellen
 foodTimer = pygame.time.get_ticks()
@@ -147,6 +147,7 @@ def textAnimation(text: str):
 # textAnimation(colorText)
 
 def world_2():
+    global x,y
     num_cells_2 = 1
     cells_2 = [[random.randint(0, cols - 1),
           random.randint(0, rows - 1)] for _ in range(num_cells_2)]
@@ -155,75 +156,107 @@ def world_2():
     t: int = 0
     p: float = 1.15
     init_cell = num_cells_2
-
+    color = "green"
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run: bool = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    run: bool = False
 
         
         screen.fill((30, 32, 25))
         spawnGrid(screen)
-                   
-        t += 1
+        twert: int =  1  
+        t += twert
         #print(t)
         new_cell_count = round(init_cell * p ** t) - len(cells_2)
         print(new_cell_count)
         for _ in range(new_cell_count):
             new_cell = [random.randint(0, cols - 1), random.randint(0, rows - 1)]
+            #new_cell = [100,100]
             cells_2.append(new_cell)
-        if new_cell_count >= 1:
-            t = 0
-        else:
-            t += 1
-        if new_cell_count == -47001:
-            run: bool = False
+        #if new_cell_count >= 1:
+            #t = 0
+        #else:
+        #t += 1
 
         for row,col in cells_2:
-            pygame.draw.rect(screen,"green",(row * cell_size,col * cell_size ,cell_size,cell_size))
+            pygame.draw.rect(screen,color,(row * cell_size,col * cell_size ,cell_size,cell_size))
 
 
+        if new_cell_count >= 6253:
+            time.sleep(3)
+            run: bool = False
+            
 
 
-
-        def greenCellMovement_2():
-            for i in range(num_cells_2):
-
-                direction = random.choice(["RIGHT", "LEFT", "UP", "DOWN"])
-
-                col, row = cells_2[i]
-
-                if direction == "RIGHT" and random.random() > 0.97:
-                    if col < cols - 1:
-                        col += 1
-                    else:
-                        direction = "LEFT"
-
-                # print(f"moved to the right at {col}")
-                elif direction == "LEFT" and random.random() > 0.97:
-                    if col > 0:
-                        col -= 1
-                    else:
-                        direction = "RIGHT"
-
-                elif direction == "UP" and random.random() > 0.97:
-                    if row > 0:
-                        row -= 1
-                    else:
-                        direction = "DOWN"
-
-                elif direction == "DOWN" and random.random() > 0.97:
-                    if row < rows - 1:
-                        row += 1
-                    else:
-                        direction = "UP"
-
-                # Update die Position der aktuellen Zelle
-                cells_2[i] = [col, row]
-        greenCellMovement_2()
             
         pygame.display.update()
         clock.tick(60)
+
+def world_3():
+    numNewCells = 100
+    new_cells = [[random.randint(0, cols - 1), random.randint(0, rows - 1)] for _ in range(numNewCells)]
+    run: bool = True
+    while run:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run: bool = False
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE or event.key == pygame.K_q:
+                    run: bool = False
+
+        screen.fill((30,32,25))
+        # screen.fill("black")
+        spawnGrid(screen)
+            
+        def NewCellMovement():
+            for i in range(numNewCells):
+
+             direction = random.choice(["RIGHT", "LEFT", "UP", "DOWN"])
+
+             col, row = new_cells[i]
+
+             if direction == "RIGHT" and random.random() > 0.97:
+                 if col < cols - 1:
+                     col += 1
+                 else:
+                     direction = "LEFT"
+
+                 # print(f"moved to the right at {col}")
+             elif direction == "LEFT" and random.random() > 0.97:
+                 if col > 0:
+                     col -= 1
+                 else:
+                     direction = "RIGHT"
+
+             elif direction == "UP" and random.random() > 0.97:
+                 if row > 0:
+                     row -= 1
+                 else:
+                     direction = "DOWN"
+
+             elif direction == "DOWN" and random.random() > 0.97:
+                 if row < rows - 1:
+                     row += 1
+                 else:
+                     direction = "UP"
+
+             # Update die Position der aktuellen Zelle
+             new_cells[i] = [col, row]
+
+        NewCellMovement()
+
+        for row,col in new_cells:
+            pygame.draw.rect(screen,"green",(row * cell_size ,col * cell_size,cell_size,cell_size))
+
+
+        pygame.display.update()
+        clock.tick(60)
+
 
 def worldMenu():
     run: bool = True
@@ -239,16 +272,47 @@ def worldMenu():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 if box_1.collidepoint(event.pos):
                     world_2()
-                    print("klick!")
+                    # print("klick!")
+                if back_text_box.collidepoint(event.pos):
+                    run: bool = False
+
+                if box_2.collidepoint(event.pos):
+                    world_3()
+
         mouse = pygame.mouse.get_pos()
         screen.fill("black")
         text_1 = smallFont.render("world_2",False,"white")
+        text_2 = smallFont.render("world_3",False,"white")
         box_1 = pygame.draw.rect(screen,"green",(40,60,200,200),5)
+        box_2 = pygame.draw.rect(screen,"green",(300,60,200,200),5)
+        
+        back_text = smallFont.render("BACK",False,"blue")
+        back_text_box = pygame.draw.rect(screen,"black",(10,540,130,100))
+        image_box = pygame.draw.rect(screen,"orange",(40,60, 200, 200))
+        pygame.draw.rect(screen,"blue",(300,60, 200, 200))
+        image_box_2 = smallFont.render("2",False,"white")
+        image_text_3 = smallFont.render("3",False,"white")
+        if box_2.collidepoint(mouse):
+            box_2 = pygame.draw.rect(screen,"green",(300,60,200,200),5)
+        else:
+            box_2 = pygame.draw.rect(screen,"white",(300,60,200,200),5)
+
         if box_1.collidepoint(mouse):
             box_1 = pygame.draw.rect(screen,"green",(40,60,200,200),5)
         else:
             box_1 = pygame.draw.rect(screen,"white",(40,60,200,200),5)
+        
+        if back_text_box.collidepoint(mouse):
+            back_text = smallFont.render("BACK",False,"green")
+        else:
+            back_text = smallFont.render("BACK",False,"white")
+
+    
+        screen.blit(image_box_2,(120,130))
+        screen.blit(image_text_3,(380,130))
+        screen.blit(back_text,(10,540))
         screen.blit(text_1,(50,10))
+        screen.blit(text_2,(300,10))
         pygame.display.update()
         clock.tick()
 
@@ -368,7 +432,6 @@ def infoScreen():
         pygame.display.update()
         clock.tick(60)
 
-from worlds import *
 def pauseScreen(width, height, font):
     global nameTagColor, nameTagVisible, nameTagSurface
     running = True
