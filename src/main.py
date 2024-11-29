@@ -3,7 +3,6 @@ import random
 import sys
 import pygame
 from termcolor import cprint,colored
-from worlds import *
 
 pygame.init()
 
@@ -57,6 +56,7 @@ wormSizex: int = 10#20
 wormSizey: int = 10#20
 
 blueCellBodyBlock: int = 0
+
 
 # Timer 1000 = 1sk
 greenCellTimer = pygame.time.get_ticks()
@@ -172,7 +172,7 @@ def world_2():
         t += twert
         #print(t)
         new_cell_count = round(init_cell * p ** t) - len(cells_2)
-        print(new_cell_count)
+        # print(new_cell_count)
         for _ in range(new_cell_count):
             new_cell = [random.randint(0, cols - 1), random.randint(0, rows - 1)]
             #new_cell = [100,100]
@@ -197,8 +197,16 @@ def world_2():
         clock.tick(60)
 
 def world_3():
+    # BLUE CELL INVASION
+    blueCellTimer = pygame.time.get_ticks()
+    blueCellTimerDur = 100
+
     numNewCells = 100
     new_cells = [[random.randint(0, cols - 1), random.randint(0, rows - 1)] for _ in range(numNewCells)]
+
+    num_blue_new = 1
+    blue_new_cells = [[random.randint(0, cols - 1), random.randint(0, rows - 1)] for _ in range(num_blue_new)] 
+    cprint(f"[INVASION]: BLUE CELL INVASION!","blue")
     run: bool = True
     while run:
         for event in pygame.event.get():
@@ -212,6 +220,25 @@ def world_3():
         screen.fill((30,32,25))
         # screen.fill("black")
         spawnGrid(screen)
+
+        def blueCellInvasion(blueCellTimer,num_blue_new,blue_new_cells):
+
+            elapsedTime = pygame.time.get_ticks() - blueCellTimer
+
+            if elapsedTime >= blueCellTimerDur:
+                    # print("spawn")
+                    blueCellTimer = pygame.time.get_ticks()
+
+                    for row,col in blue_new_cells:
+                        #print("work")
+                        num_blue_new += 1
+                        blue_new_cells.append((row,col))
+                        break
+
+            # print(elapsedTime)
+            return blueCellTimer,num_blue_new,blue_new_cells
+                    
+        blueCellTimer, num_blue_new,blue_new_cells= blueCellInvasion(blueCellTimer,num_blue_new,blue_new_cells)           
             
         def NewCellMovement():
             for i in range(numNewCells):
@@ -250,9 +277,50 @@ def world_3():
 
         NewCellMovement()
 
+
+        def NewCellMovementBlue():
+            for i in range(num_blue_new):
+
+             direction = random.choice(["RIGHT", "LEFT", "UP", "DOWN"])
+
+             col, row = blue_new_cells[i]
+
+             if direction == "RIGHT" and random.random() > 0.97:
+                 if col < cols - 1:
+                     col += 1
+                 else:
+                     direction = "LEFT"
+
+                 # print(f"moved to the right at {col}")
+             elif direction == "LEFT" and random.random() > 0.97:
+                 if col > 0:
+                     col -= 1
+                 else:
+                     direction = "RIGHT"
+
+             elif direction == "UP" and random.random() > 0.97:
+                 if row > 0:
+                     row -= 1
+                 else:
+                     direction = "DOWN"
+
+             elif direction == "DOWN" and random.random() > 0.97:
+                 if row < rows - 1:
+                     row += 1
+                 else:
+                     direction = "UP"
+
+             # Update die Position der aktuellen Zelle
+             blue_new_cells[i] = [col, row]
+
+        NewCellMovementBlue()
+
         for row,col in new_cells:
             pygame.draw.rect(screen,"green",(row * cell_size ,col * cell_size,cell_size,cell_size))
 
+
+        for row2,col2 in blue_new_cells:
+            pygame.draw.rect(screen,"blue",(row2 * cell_size ,col2 * cell_size,cell_size,cell_size))
 
         pygame.display.update()
         clock.tick(60)
@@ -288,7 +356,7 @@ def worldMenu():
         
         back_text = smallFont.render("BACK",False,"blue")
         back_text_box = pygame.draw.rect(screen,"black",(10,540,130,100))
-        image_box = pygame.draw.rect(screen,"orange",(40,60, 200, 200))
+        pygame.draw.rect(screen,"green",(40,60, 200, 200))
         pygame.draw.rect(screen,"blue",(300,60, 200, 200))
         image_box_2 = smallFont.render("2",False,"white")
         image_text_3 = smallFont.render("3",False,"white")
@@ -640,7 +708,8 @@ while run:
                 # print("Timer beim Maximum!")
                 greenCellTimer = pygame.time.get_ticks()
 
-                num_cells += 1
+                num_cells += 2
+                cells.append([col, row])
                 cells.append([col, row])
                 break
 
@@ -930,9 +999,9 @@ while run:
 
     greenCellEating()
 
-    screen.blit(cellAliveText, (10, 20))
-    screen.blit(cellAliveTextBlue, (10, 50))
-    screen.blit(cellAliveTextRed, (10, 80))
+    # screen.blit(cellAliveText, (10, 20))
+    # screen.blit(cellAliveTextBlue, (10, 50))
+    # screen.blit(cellAliveTextRed, (10, 80))
 
     # print(collsion)
     # print(num_cells)
