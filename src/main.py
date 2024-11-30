@@ -348,14 +348,14 @@ def worldMenu():
                     world_3()
 
         mouse = pygame.mouse.get_pos()
-        screen.fill("black")
+        screen.fill((44, 48, 46))
         text_1 = smallFont.render("world_2",False,"white")
         text_2 = smallFont.render("world_3",False,"white")
         box_1 = pygame.draw.rect(screen,"green",(40,60,200,200),5)
         box_2 = pygame.draw.rect(screen,"green",(300,60,200,200),5)
         
         back_text = smallFont.render("BACK",False,"blue")
-        back_text_box = pygame.draw.rect(screen,"black",(10,540,130,100))
+        back_text_box = pygame.draw.rect(screen,(44, 48, 46),(10,540,130,100))
         pygame.draw.rect(screen,"green",(40,60, 200, 200))
         pygame.draw.rect(screen,"blue",(300,60, 200, 200))
         image_box_2 = smallFont.render("2",False,"white")
