@@ -6,7 +6,6 @@ from termcolor import cprint,colored
 
 pygame.init()
 
-#world_1()
 
 # Zellen aussehen verändern
 
