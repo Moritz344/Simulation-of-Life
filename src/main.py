@@ -7,6 +7,7 @@ from termcolor import cprint,colored
 pygame.init()
 
 
+
 # Zellen aussehen verändern
 
 # Grüne Zellen :
