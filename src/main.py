@@ -82,6 +82,8 @@ deathTimerDuration = timerDurationRed // 2
 greenCellTimerDeath = pygame.time.get_ticks()
 greenCellTimerDeathDuration = 8000
 
+eventTimer = pygame.time.get_ticks()
+
 # datetime
 
 bodySize = 10#18
@@ -145,6 +147,36 @@ def textAnimation(text: str):
     print()
 
 # textAnimation(colorText)
+
+class Events(object):
+    def __init__(self,):
+        self.eventList = ["sleep"]
+        self.timer = None
+    def startTimer(self):
+        self.timer = pygame.time.get_ticks()
+    def handleTimer(self,timerDuration):
+        self.dur = timerDuration
+        if self.timer is None:
+            print("Timer wurde nicht gestartet!")
+            return False
+        elapsedTime = pygame.time.get_ticks() - self.timer
+        print(elapsedTime,"ms")
+        if elapsedTime >= self.dur and random.random() > 0.99:
+            self.timer = pygame.time.get_ticks()
+            e.randomEvent()
+
+    def randomEvent(self):
+        self.currentEvent = random.choice(self.eventList)
+        if self.currentEvent == "sleep":
+            e.sleepEvent()
+    def ausgabe(self):
+        print(f"AN EVENT ACCURED!!! [{self.currentEvent}]")
+
+    def sleepEvent(self):
+        time.sleep(1)
+
+e = Events()
+e.startTimer()
 
 def world_2():
     global x,y
@@ -315,12 +347,15 @@ def world_3():
 
         NewCellMovementBlue()
 
-        for row,col in new_cells:
-            pygame.draw.rect(screen,"green",(row * cell_size ,col * cell_size,cell_size,cell_size))
-
-
         for row2,col2 in blue_new_cells:
-            pygame.draw.rect(screen,"blue",(row2 * cell_size ,col2 * cell_size,cell_size,cell_size))
+            b = pygame.draw.rect(screen,"blue",(row2 * cell_size ,col2 * cell_size,cell_size,cell_size))
+
+        for row,col in new_cells:
+            g = pygame.draw.rect(screen,"green",(row * cell_size ,col * cell_size,cell_size,cell_size))
+        
+
+
+
 
         pygame.display.update()
         clock.tick(60)
@@ -636,7 +671,7 @@ while run:
     # print(num_cells)
     # NAMENSCHILDER
     screen.fill((30, 32, 25))
-
+    #e.handleTimer(random.randint(2000,5000))
     def drawNames():
         global nameTagVisible, nameTagColor, numbers, age, text, text_2, text_3
 
