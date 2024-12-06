@@ -149,7 +149,7 @@ def textAnimation(text: str):
 
 class Events(object):
     def __init__(self,):
-        self.eventList = ["sleep"]
+        self.eventList = ["vermehrung"]
         self.timer = None
     def startTimer(self):
         self.timer = pygame.time.get_ticks()
@@ -159,24 +159,34 @@ class Events(object):
             print("Timer wurde nicht gestartet!")
             return False
         elapsedTime = pygame.time.get_ticks() - self.timer
-        print(elapsedTime,"ms")
+        # print(elapsedTime,"ms")
         if elapsedTime >= self.dur and random.random() > 0.99:
             self.timer = pygame.time.get_ticks()
             e.randomEvent()
 
     def randomEvent(self):
         self.currentEvent = random.choice(self.eventList)
-        if self.currentEvent == "sleep":
-            e.sleepEvent()
+        if self.currentEvent == "vermehrung" and random.random() > 0.67:
+            e.fortpflanzungsEvent()
+        else:
+            e.reset()
     def ausgabe(self):
         print(f"AN EVENT ACCURED!!! [{self.currentEvent}]")
 
-    def sleepEvent(self):
-        time.sleep(1)
+    def fortpflanzungsEvent(self):
+        global foodTimerDuration,timerDurationGreen
+        cprint("[EVENT]: fortpflanzung","yellow")
+        foodTimerDuration = 1000
+        timerDurationGreen = 1000
+
+    def reset(self):
+        global foodTimerDuration,timerDurationGreen
+        foodTimerDuration = 12000
+        timerDurationGreen = 5000
 
 e = Events()
 e.startTimer()
-
+print(foodTimerDuration)
 def world_2():
     global x,y
     num_cells_2 = 1
@@ -670,7 +680,7 @@ while run:
     # print(num_cells)
     # NAMENSCHILDER
     screen.fill((30, 32, 25))
-    #e.handleTimer(random.randint(2000,5000))
+    e.handleTimer(random.randint(2000,5000))
     def drawNames():
         global nameTagVisible, nameTagColor, numbers, age, text, text_2, text_3
 
