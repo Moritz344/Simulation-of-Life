@@ -93,6 +93,8 @@ multiplier = 1
 num_cells = random.randint(1, 10)
 numRedCells = random.randint(1, 10)
 numBlueCells = random.randint(1, 10)
+numOrangeCells = 1
+maxOrangeCells = 3
 killOnes = False
 nameTagColor = "white"
 nameTagVisible = False
@@ -114,9 +116,11 @@ ateFoodBlue = True
 
 speedGreen = 1
 speedRed = 1
+speedBlue = 1
 
 cellColor2 = (205, 83, 103)
 cellColor = (125, 205, 133)
+cellColorBlue = (88,123,127)
 
 # Warscheinlichkeiten standard werte
 rightTurn = 0.97
@@ -135,6 +139,8 @@ redCells = [[random.randint(0, cols - 1),
              random.randint(0, rows - 1)] for _ in range(numRedCells)]
 blueCells = [[random.randint(0, cols - 1),
               random.randint(0, rows - 1)] for _ in range(numBlueCells)]
+orangeCells = [[random.randint(0, cols - 1),
+              random.randint(0, rows - 1)] for _ in range(numOrangeCells)] 
 
 colorText = "+--- Logs will appear here ---+"
 colorText = colored(colorText,"red")
@@ -150,8 +156,9 @@ def textAnimation(text: str):
 
 class Events(object):
     def __init__(self,):
-        self.eventList = ["vermehrung"]
+        self.eventList = ["vermehrung","sickness"]
         self.timer = None
+        self.sickness: bool = False
     def startTimer(self):
         self.timer = pygame.time.get_ticks()
     def handleTimer(self,timerDuration):
@@ -167,23 +174,62 @@ class Events(object):
 
     def randomEvent(self):
         self.currentEvent = random.choice(self.eventList)
-        if self.currentEvent == "vermehrung" and random.random() > 0.67:
+        if self.currentEvent == "vermehrung" and random.random() > 0.67 and not self.sickness:
             e.fortpflanzungsEvent()
+        elif self.currentEvent == "sickness":
+            n = random.randint(0,2)
+            if n == 1 and num_cells > 50:#voraussetzungen für sickness event ändern:
+                self.sickness: bool = True
+                e.sicknessGreenCells()
+            elif n == 2 and numBlueCells > 50:
+                self.sickness: bool = True
+                e.sicknessBlueCells()
         else:
             e.reset()
     def ausgabe(self):
-        print(f"AN EVENT ACCURED!!! [{self.currentEvent}]")
+        print(f"AN EVENT WAS ACTIVATED!!! [{self.currentEvent}]")
 
     def fortpflanzungsEvent(self):
         global foodTimerDuration,timerDurationGreen
-        cprint("[EVENT]: fortpflanzung","yellow")
+        cprint("[EVENT]: bacterias can make babies faster now","yellow")
         foodTimerDuration = 1000
         timerDurationGreen = 1000
+    def sicknessGreenCells(self):
+        cprint("[EVENT]: green cell population is sick.","yellow")
+        
+        global cellColor,speedGreen,direction
+        global foodTimerDuration,timerDurationGreen
+        mutationColor = (50,50,50)#(125,150,33)
+        cellColor = mutationColor
+        speedGreen = 0
+        foodTimerDuration = 12000
+        timerDurationGreen = 12000
+
+    def sicknessBlueCells(self):
+        cprint("[EVENT]: blue cell population is sick.","blue")
+        global cellColorBlue,speedBlue
+        global foodTimerDuration,timerDurationGreen
+        mutationColorBlue = (50,50,50)
+        cellColorBlue = mutationColorBlue
+        speedBlue = 0
+        foodTimerDuration = 12000
+        timerDurationGreen = 12000
 
     def reset(self):
-        global foodTimerDuration,timerDurationGreen
+        global foodTimerDuration,timerDurationGreen,cellColor,speedGreen
+        global cellColorBlue,speedBlue
+        global rightTurn,leftTurn,upTurn,downTurn
         foodTimerDuration = 12000
         timerDurationGreen = 5000
+        speedGreen = 1
+        speedBlue = 1
+        cellColor = (125, 205, 133)
+        cellColorBlue = (88,123,127)
+        self.sickness: bool = False
+        #rightTurn = 0.67
+        #leftTurn = 0.67
+        #upTurn = 0.67
+        #downTurn = 0.67
 
 e = Events()
 e.startTimer()
@@ -743,6 +789,44 @@ while run:
 
     greenCellMovement()
 
+    def orangeCellMovement():
+        for i in range(numOrangeCells):
+
+            direction = random.choice(["RIGHT", "LEFT", "UP", "DOWN"])
+
+            #col, row = cells[i] #looks cool
+            col,row = orangeCells[i]
+
+            if direction == "RIGHT" :
+                if col < cols - 1:
+                    col += 1
+                else:
+                    direction = "LEFT"
+
+                # print(f"moved to the right at {col}")
+            elif direction == "LEFT":
+                if col > 0:
+                    col -= 1
+                else:
+                    direction = "RIGHT"
+
+            elif direction == "UP" :
+                if row > 0:
+                    row -= 1
+                else:
+                    direction = "DOWN"
+
+            elif direction == "DOWN":
+                if row < rows - 1:
+                    row += 1
+                else:
+                    direction = "UP"
+
+            # Update die Position der aktuellen Zelle
+            orangeCells[i] = [col, row]
+
+    orangeCellMovement()
+
     # FORTPFLANZUNG
     def fortpflanzung():
         global cells, num_cells, greenCellTimer
@@ -918,28 +1002,28 @@ while run:
             if direction3 == "RIGHT" and 0 <= col3 and random.random(
             ) > rightTurn:
                 if col3 < cols - 1:
-                    col3 += speedGreen
+                    col3 += speedBlue
                 else:
                     direction3 = "LEFT"
 
             elif direction3 == "LEFT" and col3 > 0 and col3 < cols and random.random(
             ) > leftTurn:
                 if col3 > 0:
-                    col3 -= speedGreen
+                    col3 -= speedBlue 
                 else:
                     direction3 = "RIGHT"
 
             elif direction3 == "UP" and row3 > 0 and 0 <= row3 and random.random(
             ) > upTurn:
                 if row3 > 0:
-                    row3 -= speedGreen
+                    row3 -= speedBlue
                 else:
                     direction3 = "DOWN"
 
             elif direction3 == "DOWN" and row3 < rows - 1 and row3 < rows and random.random(
             ) > downTurn:
                 if row3 < rows - 1:
-                    row3 += speedGreen
+                    row3 += speedBlue
                 else:
                     direction3 = "UP"
 
@@ -971,7 +1055,9 @@ while run:
         #blueCellBody3 = pygame.draw.rect(screen,"dark green",(col3 * cell_size ,row3 * cell_size + yWert,wormSizex,wormSizey))
         #blueCellBody2 = pygame.draw.rect(screen,"red",(col3 * cell_size - 10,row3 * cell_size + yWertRed,wormSizex,wormSizey))
         #blueCellBody = pygame.draw.rect(screen,"orange",(col3 * cell_size - 10,row3 * cell_size + yWertOrange,wormSizex,wormSizey))
-        blueCell = pygame.draw.rect(screen, (88, 123, 127),(col3 * cell_size, row3 * cell_size, cell_size, cell_size))
+        blueCell = pygame.draw.rect(screen, cellColorBlue,(col3 * cell_size, row3 * cell_size, cell_size, cell_size))
+    for row4, col4 in orangeCells:
+        orangeCell = pygame.draw.rect(screen,"orange",(col4 * cell_size,row4 * cell_size,cell_size,cell_size))
 
     for row, col in cells:
         greenCell = pygame.draw.rect(
@@ -1011,7 +1097,7 @@ while run:
                         break
                 except Exception as e:
                     print(e)
-
+        
     for g_row, g_col in redCells:
         if num_cells == 0 and numBlueCells == 0:
             worldEnd = True
@@ -1031,18 +1117,26 @@ while run:
         drawNames()
 
     def greenCellEating():
-        global numBlueCells
+        global numOrangeCells,ateFoodGreen
         for row, col in blueCells:
             blueCellRect = pygame.Rect(col * cell_size, row * cell_size,
                                        cell_size, cell_size)
             if greenCell.colliderect(blueCellRect):
-                cprint(f"[{num_cells}] green cell ate blue cell","green")
+                cprint(f"[{num_cells}] green cell and blue cell made a baby","green")
                 ateFoodGreen = True
-                numBlueCells -= 1
-                blueCells.remove((row, col))
-                break
+                numOrangeCells += 1
+                for row, col in orangeCells[:]:
+                        orangeCells.append([row,col])
+                        break
+
 
     greenCellEating()
+
+    if numOrangeCells > 10:
+        for row,col in orangeCells:
+            numOrangeCells -= 1
+            orangeCells.remove([row,col])
+            break
 
     # screen.blit(cellAliveText, (10, 20))
     # screen.blit(cellAliveTextBlue, (10, 50))
