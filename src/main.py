@@ -6,23 +6,25 @@ from termcolor import cprint,colored
 
 pygame.init()
 
-
-
-# Zellen aussehen verändern
-
-# Grüne Zellen :
+#   Grüne Zellen :
 # - können sich vermehren
 # - töten blaue zellen
-# - TODO: können verhungern
+# - können verhungern
 
-# Blaue Zellen:
+#   Blaue Zellen:
 # - können sich vermehren
-# - TODO: können verhungern
+# - können verhungern
 
-# Rote Zellen:
+#   Rote Zellen:
 # - töten Blaue und Grüne Zellen
 # - können sich vermehren
 # - können an Hunger sterben
+
+#   Orange Zellen
+# - töten rote Zellen
+# - sterben an hunger
+# - können sich vermehren
+# - enstehen durch grüne und blaue Zellen
 
 # FONT
 pygame.font.init()
@@ -42,7 +44,7 @@ screenHeight: int = 610
 #cols = screenHeight // 4
 
 # if screenWidth == 800 and screenHeight == 610:
-rows: int =  70 
+rows: int =  80
 cols: int = 70
 # else:
 # rows = 200
@@ -74,6 +76,10 @@ deathTimerBlueDur = 1000
 redCellTimer = pygame.time.get_ticks()
 timerDurationRed = 15000
 
+# fortpflanzuns timer orangene Zellen
+orangeCellTimer = pygame.time.get_ticks()
+timerDurationOrange = 11000
+
 # Hungertod rote zelle
 deathTimer = pygame.time.get_ticks()
 deathTimerDuration = timerDurationRed // 2
@@ -81,6 +87,11 @@ deathTimerDuration = timerDurationRed // 2
 # Hungertod grüne Zellen 
 greenCellTimerDeath = pygame.time.get_ticks()
 greenCellTimerDeathDuration = 8000
+
+# Hungertod orangene zellen
+orangeCellTimerDeath = pygame.time.get_ticks()
+orangeCellTimerDeathDuration = 7000
+
 
 eventTimer = pygame.time.get_ticks()
 
@@ -93,8 +104,8 @@ multiplier = 1
 num_cells = random.randint(1, 10)
 numRedCells = random.randint(1, 10)
 numBlueCells = random.randint(1, 10)
-numOrangeCells = 1
-maxOrangeCells = 3
+numOrangeCells = random.randint(1,10)
+maxOrangeCells = 50
 killOnes = False
 nameTagColor = "white"
 nameTagVisible = False
@@ -113,6 +124,7 @@ worldEnd = False
 ateFood = True
 ateFoodGreen = True
 ateFoodBlue = True
+ateFoodOrange = True
 
 speedGreen = 1
 speedRed = 1
@@ -168,13 +180,13 @@ class Events(object):
             return False
         elapsedTime = pygame.time.get_ticks() - self.timer
         # print(elapsedTime,"ms")
-        if elapsedTime >= self.dur and random.random() > 0.99:
+        if elapsedTime >= self.dur and random.random() > 0.99 and not worldEnd :
             self.timer = pygame.time.get_ticks()
             e.randomEvent()
 
     def randomEvent(self):
         self.currentEvent = random.choice(self.eventList)
-        if self.currentEvent == "vermehrung" and random.random() > 0.67 and not self.sickness:
+        if self.currentEvent == "vermehrung" and random.random() > 0.67 and not self.sickness and num_cells >= 1 and numBlueCells >= 1:
             e.fortpflanzungsEvent()
         elif self.currentEvent == "sickness":
             n = random.randint(0,2)
@@ -495,7 +507,7 @@ def worldEnding():
             if quitButtonBox.collidepoint(event.pos):
                 sys.exit("Bye!")
 
-    deadEnd = bigFont.render("World ended.", True, "white")
+    deadEnd = bigFont.render("World ended", True, "white")
 
     mouse = pygame.mouse.get_pos()
     quitButton = font.render("QUIT", True, "white")
@@ -533,10 +545,10 @@ def spawnCell():
     # print(col ,row )
 
     # GÜLTIGEN BEREICH SPAWNEN
-    if 0 <= col < cols and 0 <= row < rows:
+    if 0 <= col < cols + 40 and 0 <= row < rows :
         cells.append([row - 1, col - 1])
         num_cells += 1
-        cprint(f"[{num_cells}] spawned green cell with mouse button.","green")
+        cprint(f"[USER] [{num_cells}] spawned green cell with mouse button.","green")
 
 
 def spawnCellRed():
@@ -551,11 +563,11 @@ def spawnCellRed():
     # print(col ,row )
 
     # GÜLTIGEN BEREICH SPAWNEN
-    if 0 <= col < cols and 0 <= row < rows:
+    if 0 <= col < cols + 40 and 0 <= row < rows:
         redCells.append([row, col])
         numRedCells += 1
 
-        cprint(f"[{numRedCells}] spawned red cell with mouse button.","red")
+        cprint(f"[USER] [{numRedCells}] spawned red cell with mouse button.","red")
 
 
 def infoScreen():
@@ -697,7 +709,7 @@ while run:
                     random.randint(0, cols - 1),
                     random.randint(0, rows - 1)
                 ] for _ in range(numBlueCells)]
-                print("random seed ")
+                cprint(f"[USER] selected random position for cells","grey")
             if event.key == pygame.K_ESCAPE:
                 pauseScreen(screenWidth, screenHeight, bigFont)
 
@@ -753,77 +765,79 @@ while run:
                         (g_col * cell_size - 20, g_row * cell_size - 25))
 
     def greenCellMovement():
-        for i in range(num_cells):
+        if num_cells >= 1 and not worldEnd:
+            for i in range(num_cells):
 
-            direction = random.choice(["RIGHT", "LEFT", "UP", "DOWN"])
+                direction = random.choice(["RIGHT", "LEFT", "UP", "DOWN"])
 
-            col, row = cells[i]
+                col, row = cells[i]
 
-            if direction == "RIGHT" and random.random() > rightTurn:
-                if col < cols - 1:
-                    col += speedGreen
-                else:
-                    direction = "LEFT"
+                if direction == "RIGHT" and random.random() > rightTurn:
+                    if col < cols - 1:
+                        col += speedGreen
+                    else:
+                        direction = "LEFT"
 
-                # print(f"moved to the right at {col}")
-            elif direction == "LEFT" and random.random() > leftTurn:
-                if col > 0:
-                    col -= speedGreen
-                else:
-                    direction = "RIGHT"
+                    # print(f"moved to the right at {col}")
+                elif direction == "LEFT" and random.random() > leftTurn:
+                    if col > 0:
+                        col -= speedGreen
+                    else:
+                        direction = "RIGHT"
 
-            elif direction == "UP" and random.random() > upTurn:
-                if row > 0:
-                    row -= speedGreen
-                else:
-                    direction = "DOWN"
+                elif direction == "UP" and random.random() > upTurn:
+                    if row > 0:
+                        row -= speedGreen
+                    else:
+                        direction = "DOWN"
 
-            elif direction == "DOWN" and random.random() > downTurn:
-                if row < rows - 1:
-                    row += speedGreen
-                else:
-                    direction = "UP"
+                elif direction == "DOWN" and random.random() > downTurn:
+                    if row < rows - 1:
+                        row += speedGreen
+                    else:
+                        direction = "UP"
 
-            # Update die Position der aktuellen Zelle
-            cells[i] = [col, row]
+                # Update die Position der aktuellen Zelle
+                cells[i] = [col, row]
 
     greenCellMovement()
 
     def orangeCellMovement():
-        for i in range(numOrangeCells):
+        if numOrangeCells > 0:
+            for i in range(numOrangeCells):
 
-            direction = random.choice(["RIGHT", "LEFT", "UP", "DOWN"])
+                direction = random.choice(["RIGHT", "LEFT", "UP", "DOWN"])
 
-            #col, row = cells[i] #looks cool
-            col,row = orangeCells[i]
+                #col, row = cells[i] #looks cool
+                col,row = orangeCells[i]
 
-            if direction == "RIGHT" :
-                if col < cols - 1:
-                    col += 1
-                else:
-                    direction = "LEFT"
+                if direction == "RIGHT" :
+                    if col < cols - 1:
+                        col += 1
+                    else:
+                        direction = "LEFT"
 
-                # print(f"moved to the right at {col}")
-            elif direction == "LEFT":
-                if col > 0:
-                    col -= 1
-                else:
-                    direction = "RIGHT"
+                    # print(f"moved to the right at {col}")
+                elif direction == "LEFT":
+                    if col > 0:
+                        col -= 1
+                    else:
+                        direction = "RIGHT"
 
-            elif direction == "UP" :
-                if row > 0:
-                    row -= 1
-                else:
-                    direction = "DOWN"
+                elif direction == "UP" :
+                    if row > 0:
+                        row -= 1
+                    else:
+                        direction = "DOWN"
 
-            elif direction == "DOWN":
-                if row < rows - 1:
-                    row += 1
-                else:
-                    direction = "UP"
+                elif direction == "DOWN":
+                    if row < rows - 1:
+                        row += 1
+                    else:
+                        direction = "UP"
 
-            # Update die Position der aktuellen Zelle
-            orangeCells[i] = [col, row]
+                # Update die Position der aktuellen Zelle
+                orangeCells[i] = [col, row]
 
     orangeCellMovement()
 
@@ -831,80 +845,99 @@ while run:
     def fortpflanzung():
         global cells, num_cells, greenCellTimer
         elapsedTime = pygame.time.get_ticks() - greenCellTimer
-        for row, col in cells:
-            if elapsedTime >= timerDurationGreen:
-                cprint(f"[{num_cells}] a green cell made a baby","green")
-                # print("Timer beim Maximum!")
-                greenCellTimer = pygame.time.get_ticks()
+        if num_cells >= 1 and not worldEnd:
+            for row, col in cells:
+                if elapsedTime >= timerDurationGreen:
+                    cprint(f"[{num_cells}] a green cell made a baby","green")
+                    # print("Timer beim Maximum!")
+                    greenCellTimer = pygame.time.get_ticks()
 
-                num_cells += 2
-                cells.append([col, row])
-                cells.append([col, row])
-                break
+                    num_cells += 2
+                    cells.append([col, row])
+                    cells.append([col, row])
+                    break
 
     fortpflanzung()
 
     def fortpflanzungRed(redCellTimer, timerDurationRed, numRedCells,):
-        elapsedTime = pygame.time.get_ticks() - redCellTimer
+        if numRedCells >= 2 and not worldEnd:
+            elapsedTime = pygame.time.get_ticks() - redCellTimer
 
-        if elapsedTime >= timerDurationRed:
-            numRedCells += 1
-            redCellTimer = pygame.time.get_ticks()
-            for row, col in redCells:
-                cprint(f"[{numRedCells}] a red cell made a baby","red")
-                redCells.append((row, col))
-                break
+            if elapsedTime >= timerDurationRed:
+                numRedCells += 1
+                redCellTimer = pygame.time.get_ticks()
+                for row, col in redCells:
+                    cprint(f"[{numRedCells}] a red cell made a baby","red")
+                    redCells.append((row, col))
+                    break
 
         return redCellTimer, timerDurationRed, numRedCells,
 
     redCellTimer, timerDurationRed, numRedCells, = fortpflanzungRed(
         redCellTimer, timerDurationRed, numRedCells,)
 
-    def hungerTodBlue(deathTimerBlue,deathTimerBlueDur):
-        elapsedTime = pygame.time.get_ticks() - deathTimerBlue
+    def fortpflanzungOrange(orangeCellTimer,timerDurationOrange,numOrangeCells):
+        if numOrangeCells >= 2 and not worldEnd:
+            elapsedTime = pygame.time.get_ticks() - orangeCellTimer
 
-        if ateFoodBlue:
-            deathTimerBlue = pygame.time.get_ticks()
-        if elapsedTime > deathTimerBlueDur and not ateFoodBlue and numBlueCells >= 2:
-            deathTimerBlue = pygame.time.get_ticks()
-            
-            numBlueCells -= 1
-            for row,col in blueCells:
-                if (row,col) in blueCells:
-                    cprint("died to hunger","blue")
-                    blueCells.remove((row,col))
+            if elapsedTime >= timerDurationOrange:
+                orangeCellTimer = pygame.time.get_ticks()
+                cprint(f"[{numOrangeCells}] an orange cell made a baby","light_yellow")
+                for row, col in orangeCells:
+                    numOrangeCells += 1
+                    orangeCells.append((row,col))
                     break
+
+        return orangeCellTimer,timerDurationOrange,numOrangeCells
+
+    orangeCellTimer,timerDurationOrange,numOrangeCells = fortpflanzungOrange( orangeCellTimer,timerDurationOrange,numOrangeCells )
+
+
+    def hungerTodBlue(deathTimerBlue,deathTimerBlueDur):
+        if not worldEnd:
+            elapsedTime = pygame.time.get_ticks() - deathTimerBlue
+
+            if ateFoodBlue:
+                deathTimerBlue = pygame.time.get_ticks()
+            if elapsedTime > deathTimerBlueDur and not ateFoodBlue and numBlueCells >= 2 :
+                deathTimerBlue = pygame.time.get_ticks()
+                
+                numBlueCells -= 1
+                for row,col in blueCells:
+                    if (row,col) in blueCells:
+                        cprint("died to hunger","blue")
+                        blueCells.remove((row,col))
+                        break
 
 
 
 
     def hungerTodRed(deathTimer, deathTimerDuration, ateFood, numRedCells,):
         # global deathTimer,deathTimerDuration
-
-        elapsedTime3 = pygame.time.get_ticks() - deathTimer
+        if numRedCells >= 1:
+            elapsedTime3 = pygame.time.get_ticks() - deathTimer
 
         # Timer zurücksetzen wenn ateFood True ist
-        if ateFood:
-            deathTimer = pygame.time.get_ticks()
+            if ateFood:
+                deathTimer = pygame.time.get_ticks()
             # print("nicht gelöscht!")
 
         # Wenn Timer erreicht ist und ateFood == False dann löschen
-        if elapsedTime3 >= deathTimerDuration and not ateFood and numRedCells >= 2:
-            deathTimer = pygame.time.get_ticks()
+            if elapsedTime3 >= deathTimerDuration and not ateFood and numRedCells >= 2:
+                deathTimer = pygame.time.get_ticks()
 
-            numRedCells -= 1
-            for row, col in redCells[:]:
-                if (row, col) in redCells:
-                    cprint(f"[{numRedCells}] red cell died to starving.","red")
-                    redCells.remove((row, col))
-                    break
+                numRedCells -= 1
+                for row, col in redCells[:]:
+                    if (row, col) in redCells:
+                        cprint(f"[{numRedCells}] red cell died to starving.","red")
+                        redCells.remove((row, col))
+                        break
 
-        elif elapsedTime3 >= deathTimerDuration and ateFood and numRedCells >= 1:
-            deathTimer = pygame.time.get_ticks()
-
-        # print(elapsedTime3)
+            elif elapsedTime3 >= deathTimerDuration and ateFood and numRedCells >= 1:
+                deathTimer = pygame.time.get_ticks()
 
         # print(elapsedTime3)
+
 
         return deathTimer, deathTimerDuration, ateFood, numRedCells, 
 
@@ -912,33 +945,55 @@ while run:
         deathTimer, deathTimerDuration, ateFood, numRedCells,)
 
     def greenCellHungerTod(greenCellTimerDeath, greenCellTimerDeathDuration,num_cells,ateFoodGreen):
-        elapsedTime = pygame.time.get_ticks() - greenCellTimerDeath
+        if num_cells >= 1 and not worldEnd:
+            elapsedTime = pygame.time.get_ticks() - greenCellTimerDeath
         
         
-        if ateFoodGreen:
-            greenCellTimerDeath = pygame.time.get_ticks()
+            if ateFoodGreen:
+                greenCellTimerDeath = pygame.time.get_ticks()
 
-        if elapsedTime >= greenCellTimerDeathDuration and num_cells >= 1 and not ateFood:
-            greenCellTimerDeath = pygame.time.get_ticks()
+            if elapsedTime >= greenCellTimerDeathDuration and num_cells >= 1 and not ateFood:
+                greenCellTimerDeath = pygame.time.get_ticks()
 
-            num_cells -= 1
-            for row,col in cells:
-                if (row,col) in cells and num_cells >= 1:
-                    cells.remove([row,col])
-                    cprint(f"[{num_cells}] green cell died to starving","red")
-                    break
+                num_cells -= 1
+                for row,col in cells:
+                    if (row,col) in cells and num_cells >= 1:
+                        cells.remove([row,col])
+                        cprint(f"[{num_cells}] green cell died to starving","red")
+                        break
 
 
-        #print(elapsedTime)   
         return greenCellTimerDeath,greenCellTimerDeathDuration,num_cells,ateFoodGreen
 
     greenCellTimerDeath,greenCellTimerDeathDuration,num_cells,ateFoodGreen= greenCellHungerTod(greenCellTimerDeath,greenCellTimerDeathDuration,num_cells,ateFoodGreen,)
+
+    def orangeCellHungerTod(timer,duration,numCells):
+        if numCells >= 1 and not worldEnd:
+            elapsedTime = pygame.time.get_ticks() - timer
+            
+            if ateFoodOrange:
+                timer = pygame.time.get_ticks()
+
+            if elapsedTime >= duration and numCells >= 1 :
+                timer = pygame.time.get_ticks()
+
+                for row,col in orangeCells:
+                    cprint(f"[{numOrangeCells}] orange cell died to starving ","light_yellow")
+                    numCells -= 1
+                    orangeCells.remove([row,col])
+                    break
+
+
+
+
+        return timer,duration,numCells
+    orangeCellTimerDeath,orangeCellTimerDeathDuration,numOrangeCells = orangeCellHungerTod(orangeCellTimerDeath,orangeCellTimerDeathDuration,numOrangeCells)
 
     def spawnFood():
         global foodTimer, foodTimerDuration, numBlueCells
 
         elapsedTime2 = pygame.time.get_ticks() - foodTimer
-        if elapsedTime2 >= foodTimerDuration:
+        if elapsedTime2 >= foodTimerDuration and not worldEnd:
             foodTimer = pygame.time.get_ticks()
             numBlueCells += 1
             for col, row in blueCells:
@@ -951,40 +1006,41 @@ while run:
     spawnFood()
 
     def redCellMovement():
-        for i in range(numRedCells):
-            direction2 = random.choice(["RIGHT", "LEFT", "UP", "DOWN"])
+        if numRedCells >= 1 and not worldEnd:
+            for i in range(numRedCells):
+                direction2 = random.choice(["RIGHT", "LEFT", "UP", "DOWN"])
             
-            try:
-                col2, row2 = redCells[i]
+                try:
+                    col2, row2 = redCells[i]
 
-                if direction2 == "RIGHT" and 0 <= col2:
-                    if col2 < cols - 1:
-                        col2 += speedRed
-                    else:
-                        direction = "LEFT"
+                    if direction2 == "RIGHT" and 0 <= col2:
+                        if col2 < cols - 1:
+                            col2 += speedRed
+                        else:
+                            direction = "LEFT"
 
-                elif direction2 == "LEFT" and col2 > 0 and col2 < cols:
-                    if col2 > 0:
-                        col2 -= speedRed
-                    else:
-                        direction = "RIGHT"
+                    elif direction2 == "LEFT" and col2 > 0 and col2 < cols:
+                        if col2 > 0:
+                            col2 -= speedRed
+                        else:
+                            direction = "RIGHT"
 
-                elif direction2 == "UP" and row2 > 0 and 0 <= row2:
-                    if row2 > 0:
-                        row2 -= speedRed
-                    else:
-                        direction = "DOWN"
+                    elif direction2 == "UP" and row2 > 0 and 0 <= row2:
+                        if row2 > 0:
+                            row2 -= speedRed
+                        else:
+                            direction = "DOWN"
 
-                elif direction2 == "DOWN" and row2 < rows - 1 and row2 < rows:
-                    if row2 < rows - 1:
-                        row2 += speedRed
-                    else:
-                        direction = "UP"
-            
-                redCells[i] = col2, row2
+                    elif direction2 == "DOWN" and row2 < rows - 1 and row2 < rows:
+                        if row2 < rows - 1:
+                            row2 += speedRed
+                        else:
+                            direction = "UP"
+                
+                    redCells[i] = col2, row2
 
-            except Exception as e:
-                print(f"Program crashed: {e}")
+                except Exception as e:
+                    print(f"Program crashed: {e}")
 
         # print(col2,row2)
 
@@ -994,40 +1050,41 @@ while run:
 
     # BLAUE ZELLEN
     def blueCellMovement():
-        for i in range(len(blueCells)):
-            direction3 = random.choice(["RIGHT", "LEFT", "UP", "DOWN"])
+        if numBlueCells >= 1 and not worldEnd:
+            for i in range(len(blueCells)):
+                direction3 = random.choice(["RIGHT", "LEFT", "UP", "DOWN"])
 
-            col3, row3 = blueCells[i]
+                col3, row3 = blueCells[i]
 
-            if direction3 == "RIGHT" and 0 <= col3 and random.random(
-            ) > rightTurn:
-                if col3 < cols - 1:
-                    col3 += speedBlue
-                else:
-                    direction3 = "LEFT"
+                if direction3 == "RIGHT" and 0 <= col3 and random.random(
+                ) > rightTurn:
+                    if col3 < cols - 1:
+                        col3 += speedBlue
+                    else:
+                        direction3 = "LEFT"
 
-            elif direction3 == "LEFT" and col3 > 0 and col3 < cols and random.random(
-            ) > leftTurn:
-                if col3 > 0:
-                    col3 -= speedBlue 
-                else:
-                    direction3 = "RIGHT"
+                elif direction3 == "LEFT" and col3 > 0 and col3 < cols and random.random(
+                ) > leftTurn:
+                    if col3 > 0:
+                        col3 -= speedBlue 
+                    else:
+                        direction3 = "RIGHT"
 
-            elif direction3 == "UP" and row3 > 0 and 0 <= row3 and random.random(
-            ) > upTurn:
-                if row3 > 0:
-                    row3 -= speedBlue
-                else:
-                    direction3 = "DOWN"
+                elif direction3 == "UP" and row3 > 0 and 0 <= row3 and random.random(
+                ) > upTurn:
+                    if row3 > 0:
+                        row3 -= speedBlue
+                    else:
+                        direction3 = "DOWN"
 
-            elif direction3 == "DOWN" and row3 < rows - 1 and row3 < rows and random.random(
-            ) > downTurn:
-                if row3 < rows - 1:
-                    row3 += speedBlue
-                else:
-                    direction3 = "UP"
+                elif direction3 == "DOWN" and row3 < rows - 1 and row3 < rows and random.random(
+                ) > downTurn:
+                    if row3 < rows - 1:
+                        row3 += speedBlue
+                    else:
+                        direction3 = "UP"
 
-            blueCells[i] = col3, row3
+                blueCells[i] = col3, row3
 
     blueCellMovement()
 
@@ -1040,6 +1097,7 @@ while run:
     ateFood = False
     ateFoodGreen = False
     ateFoodBlue = False
+    ateFoodOrange = False
 
     for row2, col2 in redCells:
         redCell = pygame.draw.rect(
@@ -1068,13 +1126,13 @@ while run:
         for g_row, g_col in cells:
             greenRect = pygame.Rect(g_col * cell_size, g_row * cell_size,
                                     bodySize, bodySize)
-            if redCell.colliderect(greenRect):
-                if num_cells >= 1:
-                    cprint(f"[{numRedCells}] red cell ate green cell.","red")
-                    ateFood = True
-                    num_cells -= 1
-                    cells.remove([g_row, g_col])
-                    break
+            if redCell.colliderect(greenRect) :
+                    if num_cells >= 1:
+                        cprint(f"[{numRedCells}] red cell ate green cell.","red")
+                        ateFood = True
+                        num_cells -= 1
+                        cells.remove([g_row, g_col])
+                        break
             # print(ateFood)
     # Rote Zellen essen blaue Zellen
     for row, col in blueCells:
@@ -1099,7 +1157,7 @@ while run:
                     print(e)
         
     for g_row, g_col in redCells:
-        if num_cells == 0 and numBlueCells == 0:
+        if num_cells == 0 and numBlueCells == 0 and numOrangeCells == 0:
             worldEnd = True
             cprint(f"[{numRedCells}] Rote Zellen sterben","red")
             time.sleep(0.1)
@@ -1116,23 +1174,55 @@ while run:
     if nameTagVisible:
         drawNames()
 
-    def greenCellEating():
+    def orangeCellCreating():
         global numOrangeCells,ateFoodGreen
         for row, col in blueCells:
             blueCellRect = pygame.Rect(col * cell_size, row * cell_size,
                                        cell_size, cell_size)
-            if greenCell.colliderect(blueCellRect):
-                cprint(f"[{num_cells}] green cell and blue cell made a baby","green")
+            if greenCell.colliderect(blueCellRect) and numOrangeCells > 0:
+                cprint(f"[{numOrangeCells}] green cell and blue cell made a baby","light_yellow")
                 ateFoodGreen = True
                 numOrangeCells += 1
-                for row, col in orangeCells[:]:
+                for row, col in orangeCells:
                         orangeCells.append([row,col])
                         break
 
+    orangeCellCreating()
 
-    greenCellEating()
+    def orangeCellEating():
+        global numOrangeCells
+        global numRedCells
+        global ateFoodOrange
 
-    if numOrangeCells > 10:
+        if numOrangeCells > 0:
+            for row,col in redCells:
+                redCellRect = pygame.Rect(col * cell_size,row * cell_size, cell_size, cell_size)
+                try:
+                    if orangeCell.colliderect(redCellRect) and numOrangeCells >= 1:
+                        cprint(f"[{numOrangeCells}] orange cell ate red cell","light_yellow")
+                        numRedCells -= 1
+                        ateFoodOrange = True
+                        redCells.remove((row,col))
+                        break
+                except Exception as e:
+                    print(e)
+
+    orangeCellEating()
+    
+    def redCellEatsOrangeCell():
+        global numOrangeCells
+        if numRedCells > 0:
+            for row,col in orangeCells:
+                orangeCellRect = pygame.Rect(col * cell_size,row * cell_size,cell_size,cell_size)
+                if redCell.colliderect(orangeCellRect):
+                    cprint(f"[{numOrangeCells}] red cell ate orange cell","red")
+                    numOrangeCells -= 1
+                    orangeCells.remove([row,col])
+                    break
+
+    redCellEatsOrangeCell()
+
+    if numOrangeCells > maxOrangeCells:
         for row,col in orangeCells:
             numOrangeCells -= 1
             orangeCells.remove([row,col])
