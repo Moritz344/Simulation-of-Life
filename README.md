@@ -29,11 +29,19 @@ Mit der Linken Maustaste kannst du Grüne Zellen spawnen mit der rechten die Rot
 - können verhungern
 
 ### Rote Zellen
-- Aggressive Zellen die alles töten.
-- Können verhungern
+- aggressive Zellen die alles töten.
+- können verhungern
+- können sich vermehren
 
 ### Blaue Zellen
 - können sich vermehren
+- können verhungern
+
+### Orange Zellen
+- töten rote Zellen
+- sterben an hunger
+- können sich vermehren
+- enstehen durch grüne und blaue Zellen
 
 # Zukunft
 In Zukunft wird das Projekt wachsen.
