@@ -58,6 +58,4 @@ Wenn ihr Ideen habt dann schreibt mich gerne an per e-mail!
 
 # Author
 - @Moritz344
-
-
 <br>
