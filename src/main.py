@@ -37,15 +37,11 @@ diffFont = pygame.font.Font("MinecraftRegular.otf", 80)
 text_farbe = (255, 255, 255)
 
 
-screenWidth: int =  800 
-screenHeight: int = 610 
+screenWidth: int = 1920
+screenHeight: int = 1080
 
-#rows = screenWidth // 4
-#cols = screenHeight // 4
-
-# if screenWidth == 800 and screenHeight == 610:
-rows: int =  80
-cols: int = 70
+rows: int = 150#80
+cols: int = 150#70
 # else:
 # rows = 200
 # cols = 200
@@ -53,6 +49,7 @@ world2: bool = False
 screen = pygame.display.set_mode((screenWidth, screenHeight), pygame.RESIZABLE)
 caption = pygame.display.set_caption("Game Of Life")
 clock = pygame.time.Clock()
+FPS = 60
 
 wormSizex: int = 10#20
 wormSizey: int = 10#20
@@ -109,6 +106,7 @@ maxOrangeCells = 50
 killOnes = False
 nameTagColor = "white"
 nameTagVisible = False
+currentEvent = None
 
 bacterial_names = [
     "vulcanus", "draconis", "ferno", "acidophilus", "frostii", "neptus",
@@ -163,9 +161,7 @@ def textAnimation(text: str):
         sys.stdout.flush()
         time.sleep(0.1)
     print()
-
 # textAnimation(colorText)
-
 class Events(object):
     def __init__(self,):
         self.eventList = ["vermehrung","sickness"]
@@ -202,11 +198,14 @@ class Events(object):
         print(f"AN EVENT WAS ACTIVATED!!! [{self.currentEvent}]")
 
     def fortpflanzungsEvent(self):
-        global foodTimerDuration,timerDurationGreen
+        global foodTimerDuration,timerDurationGreen,currentEvent
+        currentEvent = "Vermehrung"
         cprint("[EVENT]: bacterias can make babies faster now","yellow")
         foodTimerDuration = 1000
         timerDurationGreen = 1000
     def sicknessGreenCells(self):
+        global currentEvent
+        currentEvent = "Sickness"
         cprint("[EVENT]: green cell population is sick.","yellow")
         
         global cellColor,speedGreen,direction
@@ -218,6 +217,8 @@ class Events(object):
         timerDurationGreen = 12000
 
     def sicknessBlueCells(self):
+        global currentEvent
+        currentEvent = "Sickness"
         cprint("[EVENT]: blue cell population is sick.","blue")
         global cellColorBlue,speedBlue
         global foodTimerDuration,timerDurationGreen
@@ -245,7 +246,32 @@ class Events(object):
 
 e = Events()
 e.startTimer()
-print(foodTimerDuration)
+class InfoPanel(object):
+    def __init__(self,fps):
+        self.fps_text = font.render(f"FPS: {fps}",False,"black")
+    def greenCellData(self,num_cells):
+        self.numGreen = font.render(f"Green: {num_cells}",False,"green")
+        screen.blit(self.numGreen,(1610,70))
+    def orangeCellData(self,numOrangeCells):
+        self.numOrange = font.render(f"Orange: {numOrangeCells}",False,"orange")
+        screen.blit(self.numOrange,(1610,90))
+    def redCellData(self,numRedCells):
+        self.numRedCells = font.render(f"Red: {numRedCells}",False,"red")
+        screen.blit(self.numRedCells,(1610,110))
+    def blueCellData(self,numBlueCells):
+        self.numBlueCells = font.render(f"Blue: {numBlueCells}",False,"blue")
+        screen.blit(self.numBlueCells,(1610,130))
+    def getCurrentEvent(self,currentEvent):
+        self.event_Text = font.render(f"Event: {currentEvent}",False,"yellow")
+        screen.blit(self.event_Text,(1610,160))
+
+    def PanelBlock(self):
+        pygame.draw.rect(screen,"grey",(1600,30,300,1000))
+        screen.blit(self.fps_text,(1610,40))
+
+
+
+p: object = InfoPanel(pygame.time.get_ticks(),)
 def world_2():
     global x,y
     num_cells_2 = 1
@@ -458,7 +484,7 @@ def worldMenu():
         box_2 = pygame.draw.rect(screen,"green",(300,60,200,200),5)
         
         back_text = smallFont.render("BACK",False,"blue")
-        back_text_box = pygame.draw.rect(screen,(44, 48, 46),(10,540,130,100))
+        back_text_box = pygame.draw.rect(screen,(44, 48, 46),(10,940,130,100))
         pygame.draw.rect(screen,"green",(40,60, 200, 200))
         pygame.draw.rect(screen,"blue",(300,60, 200, 200))
         image_box_2 = smallFont.render("2",False,"white")
@@ -481,7 +507,7 @@ def worldMenu():
     
         screen.blit(image_box_2,(120,130))
         screen.blit(image_text_3,(380,130))
-        screen.blit(back_text,(10,540))
+        screen.blit(back_text,(10,940))
         screen.blit(text_1,(50,10))
         screen.blit(text_2,(300,10))
         pygame.display.update()
@@ -494,7 +520,7 @@ def worldTimer():
     timer = timer // 1000
 
     timerText = font.render(f"{timer}s", True, "red")
-    screen.blit(timerText, (750, 5))
+    screen.blit(timerText, (1880, 10))
 
     return timer
 
@@ -740,6 +766,13 @@ while run:
     # NAMENSCHILDER
     screen.fill((30, 32, 25))
     e.handleTimer(random.randint(2000,5000))
+    p.PanelBlock()
+    p.getCurrentEvent(currentEvent)
+    p.greenCellData(num_cells)
+    p.orangeCellData(numOrangeCells)
+    p.redCellData(numRedCells)
+    p.blueCellData(numBlueCells)
+
     def drawNames():
         global nameTagVisible, nameTagColor, numbers, age, text, text_2, text_3
 
@@ -1236,7 +1269,8 @@ while run:
     # print(num_cells)
     # print(numRedCells)
 
-    pygame.display.flip()
+    clock.tick(FPS)
+    pygame.display.update()
     pygame.time.delay(0)
 
 pygame.quit()
