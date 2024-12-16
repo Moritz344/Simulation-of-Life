@@ -22,7 +22,7 @@ https://github.com/user-attachments/assets/b5fe6c39-87ef-4639-9be3-06e33fac0a7c
 ```bash
 git clone https://github.com/Moritz344/Simulation-of-Life.git
 cd Simulation-of-Life
-python3 life.py
+python3 main.py
 
 ```
 
