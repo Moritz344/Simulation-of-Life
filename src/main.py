@@ -109,8 +109,8 @@ nameTagVisible = False
 currentEvent = None
 
 bacterial_names = [
-    "vulcanus", "draconis", "ferno", "acidophilus", "frostii", "neptus",
-    "thorii", "luxii", "radicatus", "hydrophilus", "xylonii", "aurelia",
+    "Bob", "Gustav", "Welten Zerstörer", "Nero", "oh", "neptus",
+    "thorii", "luxii", "radicatus", "vim", "nvim", "aurelia",
     "germinans", "tempestus", "noctis"
 ]
 
@@ -248,9 +248,9 @@ e = Events()
 e.startTimer()
 class InfoPanel(object):
     def __init__(self,fps):
-        self.fps_text = font.render(f"FPS: {fps}",False,"black")
-    def greenCellData(self,num_cells):
-        self.numGreen = font.render(f"Green: {num_cells}",False,"green")
+        self.fps_text = font.render(f"FPS: {fps}",False,(30,32,25))
+    def greenCellData(self,num_cells,):
+        self.numGreen = font.render(f"Green: {num_cells}",False,cellColor)
         screen.blit(self.numGreen,(1610,70))
     def orangeCellData(self,numOrangeCells):
         self.numOrange = font.render(f"Orange: {numOrangeCells}",False,"orange")
@@ -259,14 +259,14 @@ class InfoPanel(object):
         self.numRedCells = font.render(f"Red: {numRedCells}",False,"red")
         screen.blit(self.numRedCells,(1610,110))
     def blueCellData(self,numBlueCells):
-        self.numBlueCells = font.render(f"Blue: {numBlueCells}",False,"blue")
+        self.numBlueCells = font.render(f"Blue: {numBlueCells}",False,cellColorBlue)
         screen.blit(self.numBlueCells,(1610,130))
     def getCurrentEvent(self,currentEvent):
         self.event_Text = font.render(f"Event: {currentEvent}",False,"yellow")
         screen.blit(self.event_Text,(1610,160))
 
     def PanelBlock(self):
-        pygame.draw.rect(screen,"grey",(1600,30,300,1000))
+        pygame.draw.rect(screen,(47, 72, 88),(1600,30,300,1000))
         screen.blit(self.fps_text,(1610,40))
 
 
@@ -597,35 +597,48 @@ def spawnCellRed():
 
 
 def infoScreen():
-    runner = True
+    runner: bool = True
     while runner:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                runner = False
+                runner: bool = False
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_q:
                     sys.exit(0)
                 if event.key == pygame.K_ESCAPE:
-                    runner = False
-        screen.fill("black")
+                    runner: bool = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if back_text_Rect.collidepoint(event.pos):
+                    runner: bool = False
+
+        screen.fill((74, 87, 89))
+        mouse_pos = pygame.mouse.get_pos()
+
         text = "This Game simulates small pixel living in a small grid."
         text_2 = "You can spawn cells with your mouse buttons."
         text_3 = "You can also respawn the cells in a random position with SPACE"
+        back_text = bigFont.render("Back",False,"white")
 
         informationHeader = bigFont.render("Game Of Life", True, "white")
         infoText = normalFont.render(text, False, "white")
         infoText_2 = normalFont.render(text_2, False, "white")
         infoText_3 = normalFont.render(text_3, False, "white")
 
+        back_text_Rect = pygame.Rect(15,1000,200,100)
+        if back_text_Rect.collidepoint(mouse_pos):
+            back_text = smallFont.render("Back",False,"green")
+        else:
+            back_text = smallFont.render("Back",False,"white")
+
         infoText_4 = normalFont.render("READ MORE ON MY GITHUB: @Moritz344",
                                        False, "red")
 
-        screen.blit(informationHeader, (100, 0))
-        screen.blit(infoText, (5, 200))
-        screen.blit(infoText_2, (5, 250))
-        screen.blit(infoText_3, (5, 300))
-        screen.blit(infoText_4, (10, 400))
-
+        screen.blit(informationHeader, (600, 250))
+        screen.blit(infoText, (600, 400))
+        screen.blit(infoText_2, (600, 450))
+        screen.blit(infoText_3, (600, 500))
+        screen.blit(infoText_4, (600, 600))
+        screen.blit(back_text,(15,1000))
         pygame.display.update()
         clock.tick(60)
 
@@ -646,11 +659,9 @@ def pauseScreen(width, height, font):
 
                 if infoTextBox.collidepoint(event.pos):
                     infoScreen()
-                    running = False
 
                 if quitTextBox.collidepoint(event.pos):
                     sys.exit(0)  # exit the whole program
-                    # running = False # exit PAUSED tab
 
                 # Aus und Einschalten von Nametags
                 if nameTagBox.collidepoint(event.pos):
@@ -938,7 +949,7 @@ while run:
                 numBlueCells -= 1
                 for row,col in blueCells:
                     if (row,col) in blueCells:
-                        cprint("died to hunger","blue")
+                        cprint("died to starving","blue")
                         blueCells.remove((row,col))
                         break
 
@@ -979,13 +990,13 @@ while run:
 
     def greenCellHungerTod(greenCellTimerDeath, greenCellTimerDeathDuration,num_cells,ateFoodGreen):
         if num_cells >= 1 and not worldEnd:
-            elapsedTime = pygame.time.get_ticks() - greenCellTimerDeath
+            elapsedTime_green = pygame.time.get_ticks() - greenCellTimerDeath
         
         
             if ateFoodGreen:
                 greenCellTimerDeath = pygame.time.get_ticks()
 
-            if elapsedTime >= greenCellTimerDeathDuration and num_cells >= 1 and not ateFood:
+            if elapsedTime_green >= greenCellTimerDeathDuration and num_cells >= 1 and not ateFood:
                 greenCellTimerDeath = pygame.time.get_ticks()
 
                 num_cells -= 1
