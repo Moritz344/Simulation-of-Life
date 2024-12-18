@@ -56,5 +56,16 @@ Mit der Linken Maustaste kannst du Grüne Zellen spawnen mit der rechten die Rot
 In Zukunft wird das Projekt wachsen.
 Wenn ihr Ideen habt dann schreibt mich gerne an per e-mail! 
 
+# Andere kleine Organismen 🐍🫀
+Worm (Bob)
+<details>
+<summary>worm:</summary>
+     
+https://github.com/user-attachments/assets/711ef698-4029-46ce-ada8-4308ee7b9dc0
+</details>
+
+- ...
+- ...
+
 # Author
 - @Moritz344
