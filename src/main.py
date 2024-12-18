@@ -3,9 +3,9 @@ import random
 import sys
 import pygame
 from termcolor import cprint,colored
+from worm import Snake
 
 pygame.init()
-
 #   Grüne Zellen :
 # - können sich vermehren
 # - töten blaue zellen
@@ -41,7 +41,7 @@ screenWidth: int = 1920
 screenHeight: int = 1080
 
 rows: int = 150#80
-cols: int = 150#70
+cols: int = 105#70
 # else:
 # rows = 200
 # cols = 200
@@ -75,7 +75,7 @@ timerDurationRed = 15000
 
 # fortpflanzuns timer orangene Zellen
 orangeCellTimer = pygame.time.get_ticks()
-timerDurationOrange = 11000
+timerDurationOrange = 10000
 
 # Hungertod rote zelle
 deathTimer = pygame.time.get_ticks()
@@ -87,7 +87,7 @@ greenCellTimerDeathDuration = 8000
 
 # Hungertod orangene zellen
 orangeCellTimerDeath = pygame.time.get_ticks()
-orangeCellTimerDeathDuration = 7000
+orangeCellTimerDeathDuration = 9000
 
 
 eventTimer = pygame.time.get_ticks()
@@ -98,10 +98,10 @@ bodySize = 10#18
 cell_size = 10#18
 max_cells = 100
 multiplier = 1
-num_cells = random.randint(1, 10)
-numRedCells = random.randint(1, 10)
-numBlueCells = random.randint(1, 10)
-numOrangeCells = random.randint(1,10)
+num_cells =1# random.randint(1, 10)
+numRedCells =1# random.randint(1, 10)
+numBlueCells =1# random.randint(1, 10)
+numOrangeCells =1# random.randint(1,10)
 maxOrangeCells = 50
 killOnes = False
 nameTagColor = "white"
@@ -198,11 +198,12 @@ class Events(object):
         print(f"AN EVENT WAS ACTIVATED!!! [{self.currentEvent}]")
 
     def fortpflanzungsEvent(self):
-        global foodTimerDuration,timerDurationGreen,currentEvent
+        global foodTimerDuration,timerDurationGreen,currentEvent,timerDurationOrange
         currentEvent = "Vermehrung"
         cprint("[EVENT]: bacterias can make babies faster now","yellow")
         foodTimerDuration = 1000
         timerDurationGreen = 1000
+        timerDurationOrange = 1000
     def sicknessGreenCells(self):
         global currentEvent
         currentEvent = "Sickness"
@@ -221,12 +222,14 @@ class Events(object):
         currentEvent = "Sickness"
         cprint("[EVENT]: blue cell population is sick.","blue")
         global cellColorBlue,speedBlue
-        global foodTimerDuration,timerDurationGreen
+        global foodTimerDuration,timerDurationGreen,timerDurationOrange
         mutationColorBlue = (50,50,50)
         cellColorBlue = mutationColorBlue
         speedBlue = 0
         foodTimerDuration = 12000
         timerDurationGreen = 12000
+        timerDurationOrange = 12000
+
 
     def reset(self):
         global foodTimerDuration,timerDurationGreen,cellColor,speedGreen
@@ -272,6 +275,7 @@ class InfoPanel(object):
 
 
 p: object = InfoPanel(pygame.time.get_ticks(),)
+s: object = Snake()
 def world_2():
     global x,y
     num_cells_2 = 1
@@ -555,8 +559,8 @@ def spawnGrid(screen):
             x = breite * cell_size
             y = höhe * cell_size
             # 30 32 25
-            pygame.draw.rect(screen, (30,32,25),
-                             (x, y, cell_size, cell_size), 1)
+            #pygame.draw.rect(screen, (30,32,25),
+                             #(x, y, cell_size, cell_size), 1)
 
 
 def spawnCell():
@@ -783,6 +787,8 @@ while run:
     p.orangeCellData(numOrangeCells)
     p.redCellData(numRedCells)
     p.blueCellData(numBlueCells)
+
+    s.update()
 
     def drawNames():
         global nameTagVisible, nameTagColor, numbers, age, text, text_2, text_3

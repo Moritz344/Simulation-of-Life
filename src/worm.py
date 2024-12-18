@@ -1,15 +1,15 @@
 import pygame
 import random
 
-width = 800
-height = 600
+width = 1920
+height = 1080
 screen = pygame.display.set_mode((width,height))
 clock = pygame.time.Clock()
 pygame.display.set_caption("Worm Organism")
 
 rows: int = 50
 cols: int = 50
-cell_size: int = 20
+cell_size: int = 10
 
 def spawn_grid():
     global rows,cols,x,y
@@ -38,7 +38,7 @@ class Snake(object):
         self.snake_list.append(self.snake_head)
 
     def update(self):
-        self.direction = random.choice(["UP","LEFT","RIGHT","DOWN"])
+        self.direction = random.choice(["DOWN","RIGHT","LEFT","UP"])
         
             
         if self.direction == "UP" and random.random() > self.warscheinlichkeit:
@@ -58,24 +58,24 @@ class Snake(object):
 
         
         for snake in self.snake_list:
-            self.snake = pygame.draw.rect(screen,"green",(snake[0] ,snake[1] ,cell_size,cell_size))
+            self.snake = pygame.draw.rect(screen,(125,205,133),(snake[0] ,snake[1] ,cell_size,cell_size))
 
-        self.snake_head = pygame.draw.rect(screen,"white",(self.snake_x,self.snake_y ,20,20))
+        self.snake_head = pygame.draw.rect(screen,"white",(self.snake_x,self.snake_y ,cell_size,cell_size))
 
         if self.snake_y < 1:
-            self.snake_y = height 
-        elif self.snake_y > height - 50:
+            self.snake_y = height -200
+        elif self.snake_y > height -50:
             self.snake_y = 1
 
-        if self.snake_x > width:
+        if self.snake_x > width - 350:
             self.snake_x = 0
         elif self.snake_x < 1:
-            self.snake_x = width
+            self.snake_x = width - 350
 
 
-s: object = Snake()
+#s: object = Snake()
 
-run: bool = True
+run: bool = False
 while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
