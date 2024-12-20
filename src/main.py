@@ -3,7 +3,8 @@ import random
 import sys
 import pygame
 from termcolor import cprint,colored
-from worm import Snake
+
+
 
 pygame.init()
 #   Grüne Zellen :
@@ -98,10 +99,10 @@ bodySize = 10#18
 cell_size = 10#18
 max_cells = 100
 multiplier = 1
-num_cells =1# random.randint(1, 10)
-numRedCells =1# random.randint(1, 10)
-numBlueCells =1# random.randint(1, 10)
-numOrangeCells =1# random.randint(1,10)
+num_cells =random.randint(1, 10)
+numRedCells =random.randint(1, 10)
+numBlueCells =random.randint(1, 10)
+numOrangeCells =random.randint(1,10)
 maxOrangeCells = 50
 killOnes = False
 nameTagColor = "white"
@@ -151,6 +152,13 @@ blueCells = [[random.randint(0, cols - 1),
               random.randint(0, rows - 1)] for _ in range(numBlueCells)]
 orangeCells = [[random.randint(0, cols - 1),
               random.randint(0, rows - 1)] for _ in range(numOrangeCells)] 
+
+
+
+
+
+
+
 
 colorText = "+--- Logs will appear here ---+"
 colorText = colored(colorText,"red")
@@ -250,9 +258,10 @@ class Events(object):
 e = Events()
 e.startTimer()
 class InfoPanel(object):
+    global num_cells
     def __init__(self,fps):
         self.fps_text = font.render(f"FPS: {fps}",False,(30,32,25))
-    def greenCellData(self,num_cells,):
+    def greenCellData(self,):
         self.numGreen = font.render(f"Green: {num_cells}",False,cellColor)
         screen.blit(self.numGreen,(1610,70))
     def orangeCellData(self,numOrangeCells):
@@ -272,10 +281,8 @@ class InfoPanel(object):
         pygame.draw.rect(screen,(47, 72, 88),(1600,30,300,1000))
         screen.blit(self.fps_text,(1610,40))
 
+p = InfoPanel(pygame.time.get_ticks())
 
-
-p: object = InfoPanel(pygame.time.get_ticks(),)
-s: object = Snake()
 def world_2():
     global x,y
     num_cells_2 = 1
@@ -780,15 +787,20 @@ while run:
     # print(num_cells)
     # NAMENSCHILDER
     screen.fill((30, 32, 25))
+
+
     e.handleTimer(random.randint(2000,5000))
     p.PanelBlock()
     p.getCurrentEvent(currentEvent)
-    p.greenCellData(num_cells)
+    p.greenCellData()
     p.orangeCellData(numOrangeCells)
     p.redCellData(numRedCells)
     p.blueCellData(numBlueCells)
 
-    s.update()
+
+
+
+
 
     def drawNames():
         global nameTagVisible, nameTagColor, numbers, age, text, text_2, text_3
@@ -1168,9 +1180,7 @@ while run:
         orangeCell = pygame.draw.rect(screen,"orange",(col4 * cell_size,row4 * cell_size,cell_size,cell_size))
 
     for row, col in cells:
-        greenCell = pygame.draw.rect(
-            screen, cellColor,
-            (col * cell_size, row * cell_size, cell_size, cell_size))
+        greenCell = pygame.draw.rect(screen, cellColor,(col * cell_size, row * cell_size, cell_size, cell_size))
 
         # Rote Zellen essen grüne Zellen
         for g_row, g_col in cells:
