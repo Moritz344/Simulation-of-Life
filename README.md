@@ -56,6 +56,22 @@ Mit der Linken Maustaste kannst du Grüne Zellen spawnen mit der rechten die Rot
 In Zukunft wird das Projekt wachsen.
 Wenn ihr Ideen habt dann schreibt mich gerne an per e-mail! 
 
+# Andere Coole Organsimen 🫀
+
+
+<details>
+<summary>Wurm:</summary>
+
+https://github.com/user-attachments/assets/82dd320d-752a-44a8-a663-6cc890b109ed
+
+
+</details>
+<details>
+<summary>...</summary>
+
+
+</details>
+
 
 
 # Author
