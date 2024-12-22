@@ -92,8 +92,8 @@ class Snake(object):
         elif self.energie <= 100:
             self.warscheinlichkeit = 0.67
 
-        for i,v in enumerate(snakes):
-            print(f"Snake {i+1}: Energie: {v.energie}")
+        #for i,v in enumerate(snakes):
+            #print(f"Snake {i+1}: Energie: {v.energie}")
 
 
     def update(self):
