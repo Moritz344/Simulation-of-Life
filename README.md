@@ -29,7 +29,7 @@ python3 main.py
 # Wie Es Funktioniert!
 Mit der Linken Maustaste kannst du Grüne Zellen spawnen mit der rechten die Roten.
 
-# Zellen Und Deren Eigenschaften
+# Zellen Und Deren Eigenschaften zu main.py
 
 ### Grüne Zellen 
 - Friedliche dumme Zellen.
