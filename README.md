@@ -1,4 +1,12 @@
-# Simulation-of-Life
+<h1 align="center">Simulation-of-Life</h1>   
+
+
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/79f39e5f-2327-401c-ba01-e185d9d278d3" />
+</div>
+
+<br>
+
 [![Language](https://img.shields.io/badge/language-python-blue.svg?style=flat)](https://www.python.org) 
 [![Module](https://img.shields.io/badge/module-pygame-brightgreen.svg?style=flat)](http://www.pygame.org/news.html)
 
@@ -13,8 +21,6 @@ In diesem  Projekt geht es um kleine Pixel die verschiedene Eigenschaften und Re
 https://github.com/user-attachments/assets/b5fe6c39-87ef-4639-9be3-06e33fac0a7c
 
 </details>
-
-
 
 
 
