@@ -4,7 +4,7 @@
 
 In diesem  Projekt geht es um kleine Pixel die verschiedene Eigenschaften und Regeln haben.
 
-# So sieht es aus: (altes Video)
+# So sieht es aus: (altes Video zu main.py)
 
 <details>
 <summary>Video:</summary>
