@@ -60,14 +60,18 @@ Wenn ihr Ideen habt dann schreibt mich gerne an per e-mail!
 
 
 <details>
-<summary>Wurm:</summary>
+<summary>Wurm</summary>
 
 https://github.com/user-attachments/assets/82dd320d-752a-44a8-a663-6cc890b109ed
 
 
 </details>
 <details>
-<summary>...</summary>
+<summary>Springer</summary>
+
+
+https://github.com/user-attachments/assets/dc68724f-3568-4c03-9454-d6c04afa9efd
+
 
 
 </details>
