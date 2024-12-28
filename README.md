@@ -1,10 +1,18 @@
-# Simulation-of-Life
+<h1 align="center">Simulation-of-Life</h1>   
+
+
+<div align="center">
+  <img src="https://github.com/user-attachments/assets/82ed3ce0-0b6c-4c0d-bfae-c4bd2f18e400" />
+</div>
+
+<br>
+
 [![Language](https://img.shields.io/badge/language-python-blue.svg?style=flat)](https://www.python.org) 
 [![Module](https://img.shields.io/badge/module-pygame-brightgreen.svg?style=flat)](http://www.pygame.org/news.html)
 
 In diesem  Projekt geht es um kleine Pixel die verschiedene Eigenschaften und Regeln haben.
 
-# So sieht es aus: (altes Video)
+# So sieht es aus: (altes Video zu main.py)
 
 <details>
 <summary>Video:</summary>
@@ -13,8 +21,6 @@ In diesem  Projekt geht es um kleine Pixel die verschiedene Eigenschaften und Re
 https://github.com/user-attachments/assets/b5fe6c39-87ef-4639-9be3-06e33fac0a7c
 
 </details>
-
-
 
 
 
@@ -29,7 +35,7 @@ python3 main.py
 # Wie Es Funktioniert!
 Mit der Linken Maustaste kannst du Grüne Zellen spawnen mit der rechten die Roten.
 
-# Zellen Und Deren Eigenschaften
+# Zellen Und Deren Eigenschaften zu main.py
 
 ### Grüne Zellen 
 - Friedliche dumme Zellen.
@@ -60,14 +66,14 @@ Wenn ihr Ideen habt dann schreibt mich gerne an per e-mail!
 
 
 <details>
-<summary>Wurm</summary>
+<summary>Wurm (worm.py)</summary>
 
 https://github.com/user-attachments/assets/82dd320d-752a-44a8-a663-6cc890b109ed
 
 
 </details>
 <details>
-<summary>Springer</summary>
+<summary>Springer (springer.py)</summary>
 
 
 https://github.com/user-attachments/assets/dc68724f-3568-4c03-9454-d6c04afa9efd
