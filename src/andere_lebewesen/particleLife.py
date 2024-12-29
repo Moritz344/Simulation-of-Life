@@ -10,7 +10,7 @@ clock = pygame.time.Clock()
 pygame.display.set_caption("particle life")
 
 # global var
-num = 200
+num = 300
 colors = ["red","white"]
 
 class Life(object):
@@ -88,12 +88,11 @@ class Life(object):
         new_life = Life((random.randint(0,width),random.randint(0,height)),3,random.uniform(1,2),random.choice(colors),random.uniform(1,100))
         red_color_lifes = [red for red in lifes if red.color == "red"]
         white_color_lifes = [white for white in lifes if white.color == "white"]
-        groups = {0: [white_color_lifes]}
 
         dead_lifes = []
 
         for pixel in white_color_lifes:
-                if self.eye.colliderect(pixel.rect) :
+                if pixel != self and self.eye.colliderect(pixel.rect) :
                     pixel.move_group(white_color_lifes,random.choice(["RIGHT","UP","LEFT","DOWN"]))
                     
         for pixel in red_color_lifes:
@@ -122,12 +121,12 @@ class Life(object):
         #self.move()
         self.life = pygame.draw.circle(screen,self.color,self.position,self.size,1)
         #self.eye = pygame.draw.rect(screen,self.color,(self.position[0] - 20,self.position[1] - 20,50,50),1)
-        self.eye = pygame.Rect(self.position[0] - 100,self.position[1] - 50,200,100)
-        self.rect = pygame.Rect(self.position[0] - 10,self.position[1] - 10,self.size * 5,self.size * 5)
+        self.eye = pygame.Rect(self.position[0] - 10,self.position[1] - 10,20,20)
+        self.rect = pygame.Rect(self.position[0] - 20,self.position[1] - 20,40,40)
         
-        #pygame.draw.rect(screen,"red",(self.position[0] - 100,self.position[1] - 50,200,200),1)
-        #pygame.draw.rect(screen,"blue",(self.position[0] - 10,self.position[1] - 10,self.size * 5,self.size * 5),1)
-
+        #pygame.draw.rect(screen,"red",(self.position[0] - 10,self.position[1] - 10,20,20),1)
+        #pygame.draw.rect(screen,"blue",(self.position[0] - 20,self.position[1] - 20,40,40),1)
+        
 
 lifes = [Life((random.randint(0,width),random.randint(0,height)),3,random.uniform(1,2),random.choice(colors),random.uniform(1,100)) for _ in range(num)]
 
