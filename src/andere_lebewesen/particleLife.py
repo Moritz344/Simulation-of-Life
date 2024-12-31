@@ -10,24 +10,34 @@ clock = pygame.time.Clock()
 pygame.display.set_caption("particle life")
 
 # global var
-num = 300
+num = 100
 colors = ["red","white"]
+names = [
+            "Bob",
+            "Peter",
+            "Harald",
+            "BastiGHG"
+        ]
+pygame.font.init()
+
+font = pygame.font.SysFont("opensans",20)
+
 
 class Life(object):
-    def __init__(self,position,speed,velocity,color,id):
+    def __init__(self,position,speed,velocity,color,name):
         self.position = list(position)
         self.speed = speed
         self.velocity = velocity
         self.color = color
         self.size = 1
-        self.id = id
-        self.id = round(self.id,2)
+        self.name = name
         self.direction = "RIGHT"
 
         self.move_right_chance = 0.67
         self.move_left_chance = 0.67
         self.move_down_chance = 0.67
         self.move_up_chance = 0.67
+
 
 
         self.rect = pygame.Rect(self.position[0] - 10,self.position[1] - 10,self.size * 5,self.size * 5)
@@ -55,51 +65,22 @@ class Life(object):
         elif self.position[1] < 0 + 10:
             self.position[1] = 0 + 10
 
-    def move_group(self,group,direction):
-        for life in group:
-            if group == white_color_lifes:
-                if direction == "RIGHT" and random.random() < self.move_right_chance:
-                    self.position[0] += self.speed * 0.05
-                elif direction == "LEFT" and random.random() < self.move_left_chance:
-                    self.position[0] -= self.speed * 0.05
-                elif direction == "UP" and random.random() < self.move_up_chance:
-                    self.position[1] -= self.speed * 0.05
-                elif direction == "DOWN" and random.random() < self.move_down_chance:
-                    self.position[1] += self.speed * 0.05
-                else:
-                    group.remove(life)
+    def show_name(self):
+        for i,v in enumerate(lifes):
+            name = font.render(f"{v.name}",False,"white")
+            screen.blit(name,(v.position[0] - 10,v.position[1] - 20))
 
-        for life in group:
-            if group == red_color_lifes:
-                if direction == "RIGHT" and random.random() < self.move_right_chance:
-                    self.position[0] += self.speed * 0.1
-                elif direction == "LEFT" and random.random() < self.move_left_chance:
-                    self.position[0] -= self.speed * 0.1
-                elif direction == "UP" and random.random() < self.move_up_chance:
-                    self.position[1] -= self.speed * 0.1
-                elif direction == "DOWN" and random.random() < self.move_down_chance:
-                    self.position[1] += self.speed * 0.1
-                else:
-                    group.remove(life)
 
     def check_collision(self):
         global white_color_lifes,red_color_lifes
 
-        new_life = Life((random.randint(0,width),random.randint(0,height)),3,random.uniform(1,2),random.choice(colors),random.uniform(1,100))
         red_color_lifes = [red for red in lifes if red.color == "red"]
         white_color_lifes = [white for white in lifes if white.color == "white"]
 
-        dead_lifes = []
+        for partikel in lifes:
+            if partikel != self and self.eye.colliderect(partikel.rect):
+                partikel.move()
 
-        for pixel in white_color_lifes:
-                if pixel != self and self.eye.colliderect(pixel.rect) :
-                    pixel.move_group(white_color_lifes,random.choice(["RIGHT","UP","LEFT","DOWN"]))
-                    
-        for pixel in red_color_lifes:
-                if pixel != self and self.eye.colliderect(pixel.rect):
-                    pixel.move_group(red_color_lifes,random.choice(["RIGHT","UP","LEFT","DOWN"]))
-                else:
-                    dead_lifes.append(pixel)
 
 
         for all in lifes:
@@ -114,21 +95,18 @@ class Life(object):
                 all.position[1] = self.size
 
         # remove all white ones
-        #for life in white_color_lifes:
-            #lifes.remove(life)
+        # for life in white_color_lifes:
+            # lifes.remove(life)
 
     def update(self):
-        #self.move()
         self.life = pygame.draw.circle(screen,self.color,self.position,self.size,1)
         #self.eye = pygame.draw.rect(screen,self.color,(self.position[0] - 20,self.position[1] - 20,50,50),1)
-        self.eye = pygame.Rect(self.position[0] - 10,self.position[1] - 10,20,20)
-        self.rect = pygame.Rect(self.position[0] - 20,self.position[1] - 20,40,40)
+        self.eye = pygame.Rect(self.position[0] - 10,self.position[1] - 10,50,50)
+        self.rect = pygame.Rect(self.position[0] - 20,self.position[1] - 20,100,100)
         
-        #pygame.draw.rect(screen,"red",(self.position[0] - 10,self.position[1] - 10,20,20),1)
-        #pygame.draw.rect(screen,"blue",(self.position[0] - 20,self.position[1] - 20,40,40),1)
         
 
-lifes = [Life((random.randint(0,width),random.randint(0,height)),3,random.uniform(1,2),random.choice(colors),random.uniform(1,100)) for _ in range(num)]
+lifes = [Life((random.randint(0,width),random.randint(0,height)),3,random.uniform(1,2),random.choice(colors),random.choice(names)) for _ in range(num)]
 
 
 run = True
@@ -145,6 +123,7 @@ while run:
     for life in lifes:
         life.update()
         life.check_collision()
+        # life.show_name()
 
     clock.tick(60)
     pygame.display.update()
