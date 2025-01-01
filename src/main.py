@@ -4,7 +4,7 @@ import sys
 import pygame
 from termcolor import cprint,colored
 
-
+# IDEA: gedrückthalten und spawnen
 
 pygame.init()
 #   Grüne Zellen :
@@ -97,13 +97,11 @@ eventTimer = pygame.time.get_ticks()
 
 bodySize = 10#18
 cell_size = 10#18
-max_cells = 100
-multiplier = 1
-num_cells =random.randint(1, 10)
-numRedCells =random.randint(1, 10)
-numBlueCells =random.randint(1, 10)
-numOrangeCells =random.randint(1,10)
-maxOrangeCells = 50
+max_cells = 200
+num_cells = random.randint(1, 10)
+numRedCells = random.randint(1, 10)
+numBlueCells = random.randint(1, 10)
+numOrangeCells = random.randint(1,10)
 killOnes = False
 nameTagColor = "white"
 nameTagVisible = False
@@ -155,11 +153,6 @@ orangeCells = [[random.randint(0, cols - 1),
 
 
 
-
-
-
-
-
 colorText = "+--- Logs will appear here ---+"
 colorText = colored(colorText,"red")
 def textAnimation(text: str):
@@ -172,7 +165,7 @@ def textAnimation(text: str):
 # textAnimation(colorText)
 class Events(object):
     def __init__(self,):
-        self.eventList = ["vermehrung","sickness"]
+        self.eventList = ["wetter"]
         self.timer = None
         self.sickness: bool = False
     def startTimer(self):
@@ -190,18 +183,22 @@ class Events(object):
 
     def randomEvent(self):
         self.currentEvent = random.choice(self.eventList)
-        if self.currentEvent == "vermehrung" and random.random() > 0.67 and not self.sickness and num_cells >= 1 and numBlueCells >= 1:
+        if self.currentEvent == "vermehrung" and random.random() > 0.67 and not self.sickness and num_cells >= 1 and numBlueCells >= 1 and num_cells <= max_cells and numBlueCells <= max_cells and numOrangeCells <= max_cells:
             e.fortpflanzungsEvent()
         elif self.currentEvent == "sickness":
             n = random.randint(0,2)
-            if n == 1 and num_cells > 50:#voraussetzungen für sickness event ändern:
+            if n == 1 and num_cells > 40:#voraussetzungen für sickness event ändern:
                 self.sickness: bool = True
                 e.sicknessGreenCells()
-            elif n == 2 and numBlueCells > 50:
+            elif n == 2 and numBlueCells > 10:
                 self.sickness: bool = True
                 e.sicknessBlueCells()
+        elif self.currentEvent == "wetter" and random.random() > 0.3:
+            e.wetterEvent()
         else:
             e.reset()
+        
+
     def ausgabe(self):
         print(f"AN EVENT WAS ACTIVATED!!! [{self.currentEvent}]")
 
@@ -224,6 +221,21 @@ class Events(object):
         speedGreen = 0
         foodTimerDuration = 12000
         timerDurationGreen = 12000
+
+    def wetterEvent(self):
+        global currentEvent
+
+        self.rain_chance = random.uniform(0,1)
+        self.sturm_chance = random.uniform(0,1)
+        self.sunny_chance = random.uniform(0,1)
+
+        if random.random() > self.rain_chance:
+            currentEvent = "Regen"
+        elif random.random() < self.sturm_chance:
+            currentEvent = "Storm"
+        elif random.random() < self.sunny_chance:
+            currentEvent = "Sunny"
+
 
     def sicknessBlueCells(self):
         global currentEvent
@@ -257,10 +269,13 @@ class Events(object):
 
 e = Events()
 e.startTimer()
+
+
+
 class InfoPanel(object):
     global num_cells
-    def __init__(self,fps):
-        self.fps_text = font.render(f"FPS: {fps}",False,(30,32,25))
+    def __init__(self):
+        self.header = font.render("Simulation",False,"white")
     def greenCellData(self,):
         self.numGreen = font.render(f"Green: {num_cells}",False,cellColor)
         screen.blit(self.numGreen,(1610,70))
@@ -278,193 +293,17 @@ class InfoPanel(object):
         screen.blit(self.event_Text,(1610,160))
 
     def PanelBlock(self):
-        pygame.draw.rect(screen,(47, 72, 88),(1600,30,300,1000))
-        screen.blit(self.fps_text,(1610,40))
+        pygame.draw.rect(screen,(49, 47, 47),(1600,30,300,160))
+        screen.blit(self.header,(1610,40))
 
-p = InfoPanel(pygame.time.get_ticks())
+p = InfoPanel()
 
 def world_2():
-    global x,y
-    num_cells_2 = 1
-    cells_2 = [[random.randint(0, cols - 1),
-          random.randint(0, rows - 1)] for _ in range(num_cells_2)]
-    run: bool = True
-
-    t: int = 0
-    p: float = 1.15
-    init_cell = num_cells_2
-    color = "green"
-    while run:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                run: bool = False
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    run: bool = False
-
-        
-        screen.fill((30, 32, 25))
-        spawnGrid(screen)
-        twert: int =  1  
-        t += twert
-        #print(t)
-        new_cell_count = round(init_cell * p ** t) - len(cells_2)
-        # print(new_cell_count)
-        for _ in range(new_cell_count):
-            new_cell = [random.randint(0, cols - 1), random.randint(0, rows - 1)]
-            #new_cell = [100,100]
-            cells_2.append(new_cell)
-        #if new_cell_count >= 1:
-            #t = 0
-        #else:
-        #t += 1
-
-        for row,col in cells_2:
-            pygame.draw.rect(screen,color,(row * cell_size,col * cell_size ,cell_size,cell_size))
-
-
-        if new_cell_count >= 6253:
-            time.sleep(3)
-            run: bool = False
-            
-
-
-            
-        pygame.display.update()
-        clock.tick(60)
-
+    # worm
+    pass
 def world_3():
-    # BLUE CELL INVASION
-    blueCellTimer = pygame.time.get_ticks()
-    blueCellTimerDur = 100
-
-    numNewCells = 100
-    new_cells = [[random.randint(0, cols - 1), random.randint(0, rows - 1)] for _ in range(numNewCells)]
-
-    num_blue_new = 1
-    blue_new_cells = [[random.randint(0, cols - 1), random.randint(0, rows - 1)] for _ in range(num_blue_new)] 
-    cprint(f"[INVASION]: BLUE CELL INVASION!","blue")
-    run: bool = True
-    while run:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                run: bool = False
-
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE or event.key == pygame.K_q:
-                    run: bool = False
-
-        screen.fill((30,32,25))
-        # screen.fill("black")
-        spawnGrid(screen)
-
-        def blueCellInvasion(blueCellTimer,num_blue_new,blue_new_cells):
-
-            elapsedTime = pygame.time.get_ticks() - blueCellTimer
-
-            if elapsedTime >= blueCellTimerDur:
-                    # print("spawn")
-                    blueCellTimer = pygame.time.get_ticks()
-
-                    for row,col in blue_new_cells:
-                        #print("work")
-                        num_blue_new += 1
-                        blue_new_cells.append((row,col))
-                        break
-
-            # print(elapsedTime)
-            return blueCellTimer,num_blue_new,blue_new_cells
-                    
-        blueCellTimer, num_blue_new,blue_new_cells= blueCellInvasion(blueCellTimer,num_blue_new,blue_new_cells)           
-            
-        def NewCellMovement():
-            for i in range(numNewCells):
-
-             direction = random.choice(["RIGHT", "LEFT", "UP", "DOWN"])
-
-             col, row = new_cells[i]
-
-             if direction == "RIGHT" and random.random() > 0.97:
-                 if col < cols - 1:
-                     col += 1
-                 else:
-                     direction = "LEFT"
-
-                 # print(f"moved to the right at {col}")
-             elif direction == "LEFT" and random.random() > 0.97:
-                 if col > 0:
-                     col -= 1
-                 else:
-                     direction = "RIGHT"
-
-             elif direction == "UP" and random.random() > 0.97:
-                 if row > 0:
-                     row -= 1
-                 else:
-                     direction = "DOWN"
-
-             elif direction == "DOWN" and random.random() > 0.97:
-                 if row < rows - 1:
-                     row += 1
-                 else:
-                     direction = "UP"
-
-             # Update die Position der aktuellen Zelle
-             new_cells[i] = [col, row]
-
-        NewCellMovement()
-
-
-        def NewCellMovementBlue():
-            for i in range(num_blue_new):
-
-             direction = random.choice(["RIGHT", "LEFT", "UP", "DOWN"])
-
-             col, row = blue_new_cells[i]
-
-             if direction == "RIGHT" and random.random() > 0.97:
-                 if col < cols - 1:
-                     col += 1
-                 else:
-                     direction = "LEFT"
-
-                 # print(f"moved to the right at {col}")
-             elif direction == "LEFT" and random.random() > 0.97:
-                 if col > 0:
-                     col -= 1
-                 else:
-                     direction = "RIGHT"
-
-             elif direction == "UP" and random.random() > 0.97:
-                 if row > 0:
-                     row -= 1
-                 else:
-                     direction = "DOWN"
-
-             elif direction == "DOWN" and random.random() > 0.97:
-                 if row < rows - 1:
-                     row += 1
-                 else:
-                     direction = "UP"
-
-             # Update die Position der aktuellen Zelle
-             blue_new_cells[i] = [col, row]
-
-        NewCellMovementBlue()
-
-        for row2,col2 in blue_new_cells:
-            b = pygame.draw.rect(screen,"blue",(row2 * cell_size ,col2 * cell_size,cell_size,cell_size))
-
-        for row,col in new_cells:
-            g = pygame.draw.rect(screen,"green",(row * cell_size ,col * cell_size,cell_size,cell_size))
-        
-
-
-
-
-        pygame.display.update()
-        clock.tick(60)
-
+    # springer
+    pass
 
 def worldMenu():
     run: bool = True
@@ -531,7 +370,7 @@ def worldTimer():
     timer = timer // 1000
 
     timerText = font.render(f"{timer}s", True, "red")
-    screen.blit(timerText, (1880, 10))
+    screen.blit(timerText, (1600, 10))
 
     return timer
 
@@ -582,7 +421,7 @@ def spawnCell():
     # print(col ,row )
 
     # GÜLTIGEN BEREICH SPAWNEN
-    if 0 <= col < cols + 40 and 0 <= row < rows :
+    if 0 <= col < cols + 40 and 0 <= row < rows and num_cells < max_cells:
         cells.append([row - 1, col - 1])
         num_cells += 1
         cprint(f"[USER] [{num_cells}] spawned green cell with mouse button.","green")
@@ -600,7 +439,7 @@ def spawnCellRed():
     # print(col ,row )
 
     # GÜLTIGEN BEREICH SPAWNEN
-    if 0 <= col < cols + 40 and 0 <= row < rows:
+    if 0 <= col < cols + 40 and 0 <= row < rows and numRedCells < max_cells:
         redCells.append([row, col])
         numRedCells += 1
 
@@ -761,13 +600,6 @@ while run:
             if event.key == pygame.K_ESCAPE:
                 pauseScreen(screenWidth, screenHeight, bigFont)
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:
-                if not worldEnd:
-                    spawnCell()
-            if event.button == 3:
-                if not worldEnd:
-                    spawnCellRed()
         if event.type == pygame.MOUSEWHEEL:
             #  Holen der Mausposition vor dem Zoom
             mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -787,6 +619,12 @@ while run:
     # print(num_cells)
     # NAMENSCHILDER
     screen.fill((30, 32, 25))
+    
+    mouse_button = pygame.mouse.get_pressed()
+    if mouse_button[0]:
+        spawnCell()
+    elif mouse_button[2]:
+        spawnCellRed()
 
 
     e.handleTimer(random.randint(2000,5000))
@@ -907,7 +745,7 @@ while run:
     def fortpflanzung():
         global cells, num_cells, greenCellTimer
         elapsedTime = pygame.time.get_ticks() - greenCellTimer
-        if num_cells >= 1 and not worldEnd:
+        if num_cells >= 1 and not worldEnd and num_cells < max_cells:
             for row, col in cells:
                 if elapsedTime >= timerDurationGreen:
                     cprint(f"[{num_cells}] a green cell made a baby","green")
@@ -922,7 +760,7 @@ while run:
     fortpflanzung()
 
     def fortpflanzungRed(redCellTimer, timerDurationRed, numRedCells,):
-        if numRedCells >= 2 and not worldEnd:
+        if numRedCells >= 2 and not worldEnd and numRedCells < max_cells:
             elapsedTime = pygame.time.get_ticks() - redCellTimer
 
             if elapsedTime >= timerDurationRed:
@@ -1055,7 +893,7 @@ while run:
         global foodTimer, foodTimerDuration, numBlueCells
 
         elapsedTime2 = pygame.time.get_ticks() - foodTimer
-        if elapsedTime2 >= foodTimerDuration and not worldEnd:
+        if elapsedTime2 >= foodTimerDuration and not worldEnd and numBlueCells < max_cells:
             foodTimer = pygame.time.get_ticks()
             numBlueCells += 1
             for col, row in blueCells:
@@ -1239,7 +1077,7 @@ while run:
         for row, col in blueCells:
             blueCellRect = pygame.Rect(col * cell_size, row * cell_size,
                                        cell_size, cell_size)
-            if greenCell.colliderect(blueCellRect) and numOrangeCells > 0:
+            if greenCell.colliderect(blueCellRect) and numOrangeCells > 0 and numOrangeCells < max_cells :
                 cprint(f"[{numOrangeCells}] green cell and blue cell made a baby","light_yellow")
                 ateFoodGreen = True
                 numOrangeCells += 1
@@ -1282,7 +1120,7 @@ while run:
 
     redCellEatsOrangeCell()
 
-    if numOrangeCells > maxOrangeCells:
+    if numOrangeCells > max_cells:
         for row,col in orangeCells:
             numOrangeCells -= 1
             orangeCells.remove([row,col])
