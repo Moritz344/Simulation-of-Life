@@ -82,7 +82,16 @@ https://github.com/user-attachments/assets/dc68724f-3568-4c03-9454-d6c04afa9efd
 
 </details>
 
+<details>
+<summary>partikel (particleLife.py)</summary>
 
+
+
+https://github.com/user-attachments/assets/847e2d06-926d-4b09-b34f-41ce90b73234
+
+
+
+</details>
 
 # Author
 - @Moritz344
