@@ -8,15 +8,21 @@ clock = pygame.time.Clock()
 fps = 60
 pygame.display.set_caption("Schwimmer Organismus")
 
-
+# nametags?
+# Agressive Zellen?
 
 # global var
-cell_size = 10
+cell_size = 5
 num_life = 1
 color_choice = random.choice(["blue","red","yellow"])
 
+# font
+pygame.font.init()
+font = pygame.font.Font("../MinecraftRegular.otf",30)
+
+
 class Schwimmer(object):
-    def __init__(self,position,colour,lebenszeit,alive,hungry,energie,speed=cell_size):
+    def __init__(self,name,position,colour,lebenszeit,alive,hungry,energie,speed=cell_size):
         self.position = list(position)
         self.speed = speed
         self.move_chance = 0.77
@@ -25,6 +31,7 @@ class Schwimmer(object):
         self.alive = alive
         self.hungry = hungry
         self.energie = energie
+        self.name = name
 
 
         
@@ -42,12 +49,12 @@ class Schwimmer(object):
         self.klon_timer = pygame.time.get_ticks()
         self.klon_timer_dur = 500
 
-        self.block = 10
+        self.block = cell_size
 
-        self.body_1_block = 10
-        self.body_2_block = 10
-        self.body_3_block = 10
-        self.body_4_block = 10
+        self.body_1_block = cell_size 
+        self.body_2_block = cell_size
+        self.body_3_block = cell_size
+        self.body_4_block = cell_size
     
 
     def klone_schwimmer(self):
@@ -64,31 +71,38 @@ class Schwimmer(object):
 
     def create_new_schwimmer(self):
             if num_life >= 1 :
-                new_life = Schwimmer((random.randint(0,width - cell_size),random.randint(0,height - cell_size)  ),random.choice(["red","blue","green","orange",]),random.randint(0,20000),True,False,random.randint(200,300))
+                new_life = Schwimmer("",(self.position[0],self.position[1]),random.choice(["red","blue","green","orange",]),random.randint(1000,100000),True,False,random.randint(1000,5000))
                 schwimmer_generation.append(new_life)
             
     def delete_schwimmer(self):
         schwimmer_generation.remove(self)
 
+
     def eating_process(self):
         global num_life
         for life in schwimmer_generation:
-            #if life != self and self.rect.colliderect(life.rect) and not self.alive and self in schwimmer_generation:
-            #    # schwimmer_generation.remove(self)
-            #    self.hungry = False
-            #    self.block -= 0.5 * 0.1
-            #    self.endwert -= 1 
-            #    self.startwert -= 1
-            #    break
-            if life != self and self.body_1.colliderect(life.rect) and not self.alive and self in schwimmer_generation:
+            if life != self and self.body_1.colliderect(life.rect) and not self.alive and self in schwimmer_generation :
                 self.body_1_block -= 1
-                
             elif life != self and self.body_2.colliderect(life.rect) and not self.alive and self in schwimmer_generation:
                 self.body_2_block -= 1
+                self.death_timer_dur += 100
+                self.energie += 1500
             elif life != self and self.body_3.colliderect(life.rect) and not self.alive and self in schwimmer_generation:
                 self.body_3_block -= 1
+                self.death_timer_dur += 100
+                self.energie += 1500
             elif life != self and self.body_4.colliderect(life.rect) and not self.alive and self in schwimmer_generation:
                 self.body_4_block -= 1
+                self.death_timer_dur += 100
+                self.energie += 1500
+            if life != self and self.erb.colliderect(life.rect) and not self.alive and self in schwimmer_generation:
+                self.block -= 1
+                self.death_timer_dur += 100
+                self.energie += 500
+
+
+            
+    
     def next_generation(self):
         global num_life,next_generation
         print("Jedes Organismus ist gestorben!")
@@ -124,6 +138,8 @@ class Schwimmer(object):
             self.colour = "grey"
             self.body_colour = "grey"
             self.speed = 0
+
+        
 
 
         if self.position[0] > width - cell_size:
@@ -161,13 +177,39 @@ class Schwimmer(object):
 
         if num_life == 0:
             self.next_generation()
+        
 
 
-schwimmer_generation = [Schwimmer((random.randint(0,width - cell_size * 2),random.randint(0,height - cell_size * 2)),"blue",random.randint(1000,20000),True,True,random.randint(200,300)) for _ in range(num_life)]
 
-s = Schwimmer((random.randint(0,width ),random.randint(0,height )),"white",random.randint(1000,20000),True,True,random.randint(200,300))
+
+schwimmer_generation = [Schwimmer("",(random.randint(0,width - cell_size * 2),random.randint(0,height - cell_size * 2)),"blue",random.randint(1000,100000),True,True,random.randint(1000,5000)) for _ in range(num_life)]
+s = Schwimmer("",(random.randint(0,width ),random.randint(0,height )),"white",random.randint(1000,100000),True,True,random.randint(1000,5000))
+
+
+def berechne_durschnitt(objekte):
+    # lebenszeit durschnitt berechnen
+    gesamte_lebenszeit = 0
+    anzahl_objekte = 0
+
+    for objekt in objekte:
+        gesamte_lebenszeit = objekt.death_timer_dur
+        anzahl_objekte += 1
+
+    return gesamte_lebenszeit / anzahl_objekte if anzahl_objekte > 0 else 0
+
+def spawn_food():
+    global num_life
+    mouse_x,mouse_y = pygame.mouse.get_pos()
+    
+    new_life = Schwimmer("",(mouse_x,mouse_y),random.choice(["red","blue","yellow","green"]),random.randint(1000,100000),True,True,random.randint(1000,5000))
+    num_life += 1
+    schwimmer_generation.append(new_life)
+
 for i,v in enumerate(schwimmer_generation):
         print(f"{i+1},Lebensstatus: {v.alive},Lebenszeit: {v.death_timer_dur} ms, Hungrig: {v.hungry} Energie: {v.energie}")
+
+erstes_objekt = schwimmer_generation[0]
+
 
 def main():
     run = True
@@ -179,15 +221,33 @@ def main():
                 if event.key == pygame.K_q:
                     run = False
     
-        screen.fill("black")
+        screen.fill((7, 30, 34))
         
         s.klone_schwimmer()
+
+        mouse_pressed = pygame.mouse.get_pressed()
+        if mouse_pressed[0]:
+            spawn_food()
         
+        
+        if erstes_objekt.alive == False:
+            erstes_objekt.colour = "green"
+            erstes_objekt.body_colour = "green"
+
+
         for life in schwimmer_generation:
             life.move()
             life.update()
             life.eating_process()
-    
+
+
+        average_lebenszeit = berechne_durschnitt(schwimmer_generation)
+        average_lebenszeit = round(average_lebenszeit,(2))
+        average_lebenszeit_text = font.render(f"av. life: {average_lebenszeit}ms",False,"white")
+        anzahl_lifes = font.render(f"num: {num_life}",False,"white")
+        screen.blit(average_lebenszeit_text,(0,0))
+        screen.blit(anzahl_lifes,(0,25))
+
         clock.tick(fps)
         pygame.display.update()
 main()
