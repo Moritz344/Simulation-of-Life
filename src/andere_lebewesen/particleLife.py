@@ -1,7 +1,6 @@
 import pygame
 import random
 
-# IDEA: Kollision mit einzelnen partikeln hinzufügen
 
 width = 800
 height = 600
@@ -11,6 +10,7 @@ pygame.display.set_caption("particle life")
 
 # global var
 num = 100
+max_partikel = 200
 colors = ["red","white"]
 names = [
             "Bob",
@@ -94,15 +94,13 @@ class Life(object):
             elif all.position[1] < 0 + self.size:
                 all.position[1] = self.size
 
-        # remove all white ones
-        # for life in white_color_lifes:
-            # lifes.remove(life)
 
     def update(self):
         self.life = pygame.draw.circle(screen,self.color,self.position,self.size,1)
         #self.eye = pygame.draw.rect(screen,self.color,(self.position[0] - 20,self.position[1] - 20,50,50),1)
         self.eye = pygame.Rect(self.position[0] - 10,self.position[1] - 10,50,50)
         self.rect = pygame.Rect(self.position[0] - 20,self.position[1] - 20,100,100)
+
         
         
 
@@ -119,6 +117,17 @@ while run:
                 run = False
 
     screen.fill("black")
+
+    mouse_button = pygame.mouse.get_pressed()
+    mouse_pos = pygame.mouse.get_pos()
+    new_life = Life(mouse_pos,3,random.uniform(1,2),random.choice(colors),random.choice(names))
+    if mouse_button[0] and num < max_partikel:
+        num += 1
+        lifes.append(new_life)
+    elif mouse_button[2]:
+        for life in lifes:
+            num -= 1
+            lifes.remove(life)
 
     for life in lifes:
         life.update()
