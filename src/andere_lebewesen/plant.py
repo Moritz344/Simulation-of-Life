@@ -23,6 +23,9 @@ class Plant(object):
         self.vermehrungs_timer = pygame.time.get_ticks()
         self.vermehrungs_duration = 150
 
+        self.corpse_vanish = pygame.time.get_ticks()
+        self.corpse_vanish_dur = 1000
+
         self.max_plant = 220
         self.colour = "yellow"
         self.body_colour = "green"
@@ -35,14 +38,11 @@ class Plant(object):
         elapsedTime = pygame.time.get_ticks() - self.lebenszeit_timer
         if elapsedTime >= self.lebenszeit and self.alive:
             num_plants -= 1
-            self.body_colour = "grey"
-            self.colour = "grey"
             self.alive = False
-
-            # nach einer zeit soll self removed werden 
-            plant_generation.remove(self)
-
             self.lebenszeit_timer = pygame.time.get_ticks()
+            self.lebenszeit += 1000
+
+            plant_generation.remove(self)
 
 
 
@@ -97,7 +97,7 @@ class Plant(object):
 
         
 
-plant_generation = [Plant((random.randint(0,width - cell_size),random.randint(0,height - cell_size)),random.randint(3000,5000) ) for _ in range(num_plants)]
+plant_generation = [Plant((random.randint(0,width ),random.randint(0,height - cell_size)),random.randint(3000,5000) ) for _ in range(num_plants)]
 plant = Plant((random.randint(0,width - cell_size),random.randint(0,height - cell_size)),random.randint(3000,5000))
 
 
