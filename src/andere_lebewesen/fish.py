@@ -6,7 +6,9 @@ height = 600
 screen = pygame.display.set_mode((width,height))
 clock = pygame.time.Clock()
 
-num = 15
+num = 2
+max_num = 20
+num_plankton = 20
 
 # TODO: Plankton als Nahrung, Fortpflanzung, Fischarten
 
@@ -30,7 +32,6 @@ mittlere_schwimmhöhe: float = min(15.0,24.0)
 niedrige_schwimmhöhe: float = 15.0
 direction = None
 
-print(mittlere_schwimmhöhe)
 
 def temperature_level(temp,):
         temp_text = font.render(f"{temp}°C",False,"white")
@@ -48,22 +49,54 @@ class Nahrung(object):
 
         self.startwert = 0
         self.endwert = 4
-        self.abstand = 10
+        self.abstand = 5
+
+        self.block_1 = 5
+        self.block_2 = 5
+        self.block_3 = 5
+
+        self.spawn_timer = pygame.time.get_ticks()
+        self.spawn_timer_dur = 5000
 
         self.rect = pygame.Rect(self.position[0] - 30 , self.position[1] - 30,self.size  * 7,self.size * 4)
 
+    def spawn_nahrung(self):
+        global num_plankton
+        elapsedTime = pygame.time.get_ticks() - self.spawn_timer
+        if elapsedTime >= self.spawn_timer_dur:
+            new_food = Nahrung((random.randint(20,width - 30),random.randint(50,200)) ) 
+            food_group.append(new_food)
+            num_plankton += 1
+            self.spawn_timer = pygame.time.get_ticks()
+
     def draw_plankton(self):
             for i in range(self.startwert,self.endwert):
-                self.body_1 = pygame.draw.rect(screen,"dark green",(self.position[0] , self.position[1] - i * 10,self.size,self.size))
+                self.body_1 = pygame.draw.rect(screen,"dark green",(self.position[0] , self.position[1] - i * self.abstand,self.block_1,self.block_1))
             for i in range(self.startwert,self.endwert):
-                self.body_2 = pygame.draw.rect(screen,"dark green",(self.position[0] + i * 10, self.position[1] - i * 10,self.size,self.size))
+                self.body_2 = pygame.draw.rect(screen,"dark green",(self.position[0] + i * self.abstand, self.position[1] - i * self.abstand,self.block_2,self.block_2))
             for i in range(self.startwert,self.endwert):
-                self.body_2 = pygame.draw.rect(screen,"dark green",(self.position[0] - i * 10, self.position[1] - i * 10,self.size,self.size))
+               self.body_3 = pygame.draw.rect(screen,"dark green",(self.position[0] - i * self.abstand, self.position[1] - i * self.abstand,self.block_3,self.block_3))
+            
+
+            for life in fish_group:
+                if self.body_1.colliderect(life.rect) :
+                    self.block_1 -= 1
+
+            for life in fish_group:
+                if self.body_2.colliderect(life.rect) :
+                    self.block_2 -= 1
+
+            for life in fish_group:
+                if self.body_3.colliderect(life.rect) :
+                    self.block_3 -= 1
+
 
             self.rect = pygame.Rect(self.position[0] - 30 , self.position[1] - 30,self.size  * 7,self.size * 4)
+            
 
     def collision_detection(self,other):
         return (self.rect.colliderect(other.rect))
+
 
 
     def update(self):
@@ -73,23 +106,67 @@ class Nahrung(object):
 
 
 class Fish(object):
-    def __init__(self,position,speed,direction,):
+    def __init__(self,position,speed,direction,lebenszeit,size):
         self.position = list(position)
         self.speed = speed
-        self.size = 10
         self.direction = direction
         self.dx = 1
         self.dy = 1
+        self.size = size
+
+        self.alive = True
+        
+        self.lebenszeit = lebenszeit # in ms
+        self.leben = pygame.time.get_ticks()
 
 
         self.move_chance = 0.69
         self.down_chance = 0.69
         self.up_chance = 0.69
 
+        self.colour = "blue"
+
         self.rect = pygame.Rect(self.position[0],self.position[1],20,20)
 
         self.next_move_timer = pygame.time.get_ticks()
         self.duration = 1000
+
+        self.paarung = pygame.time.get_ticks()
+        self.paarung_dur = 1000
+
+    def vermehrung(self):
+        global num
+        if temp >= 10 and temp < 20 and num >= 2 and num < 20:
+            elapsedTime = pygame.time.get_ticks() - self.paarung
+            if elapsedTime >= self.paarung_dur:
+                num += 1
+                new_fish = Fish((random.randint(0,width),random.randint(0,height)),2,random.choice(["RIGHT","LEFT","UP","DOWN"]),random.randint(10000,20000),10)
+                fish_group.append(new_fish)
+                self.paarung = pygame.time.get_ticks()
+            #print(elapsedTime,num)
+
+
+
+
+
+    def handling_death(self):
+        global num
+        if not self.alive:
+            self.colour = "grey"
+            self.speed = 0
+            fish_group.remove(self)
+            num -= 1
+
+
+    def age_death(self):
+        global num
+        elapsedTime = pygame.time.get_ticks() - self.leben
+        if elapsedTime >= self.lebenszeit:
+            self.alive = False
+            #fish_group.remove(self)
+        else:
+            self.alive = True
+            #self.leben = pygame.time.get_ticks()
 
     def collision_detection(self):
         for life in fish_group:
@@ -156,13 +233,16 @@ class Fish(object):
     
 
     def update(self):
+        self.handling_death()
         self.move()
         self.collision_detection()
-        self.fish = pygame.draw.rect(screen, "blue", (self.position[0],self.position[1],self.size,self.size))
+        self.fish = pygame.draw.rect(screen, self.colour, (self.position[0],self.position[1],self.size,self.size))
         self.rect = pygame.Rect(self.position[0],self.position[1],40,40)
 
-fish_group = [Fish((random.randint(0,width),random.randint(0,height)),2,random.choice(["RIGHT","LEFT","UP","DOWN"])) for _ in range(num)]
-food_group = [Nahrung((random.randint(20,width - 30),height - 11) ) for _ in range(3)]
+fish_group = [Fish((random.randint(0,width),random.randint(0,height)),2,random.choice(["RIGHT","LEFT","UP","DOWN"]),random.randint(10000,20000),10) for _ in range(num)]
+fish = Fish((random.randint(0,width),random.randint(0,height)),2,random.choice(["RIGHT","LEFT","UP","DOWN"]),random.randint(10000,20000),10)
+food_group = [Nahrung((random.randint(20,width - 30),random.randint(50,200)) ) for _ in range(num_plankton)]
+food = Nahrung((random.randint(20,width - 30),random.randint(50,200)) )
 kollision_food = False
 
 run = True
@@ -174,7 +254,9 @@ while run:
             if event.key == pygame.K_q:
                 run = False
 
-    screen.fill("black")
+    screen.fill((29, 45, 68))
+
+
     elapsedTime = pygame.time.get_ticks() - temp_timer
     if elapsedTime >= temp_timer_dur:
         temp_timer = pygame.time.get_ticks()
@@ -190,16 +272,21 @@ while run:
                 if food_group[i].collision_detection(food_group[j]) :
                  kollision_food = True
                  food_group.remove(food_group[i])
+                 num_plankton -= 1
             except IndexError :
                 continue
             else:
                 kollsion_food = False
 
+    food.spawn_nahrung()
+    fish.vermehrung()
+
     for life in fish_group:
+        life.age_death()
         life.update()
     for food in food_group:
         food.update()
 
     clock.tick(60)
     pygame.display.update()
-
+pygame.quit()
