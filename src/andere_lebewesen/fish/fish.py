@@ -2,8 +2,8 @@ import pygame
 import random
 import math
 
-width = 800
-height = 600
+width = 1920
+height = 1080
 screen = pygame.display.set_mode((width,height))
 clock = pygame.time.Clock()
 pygame.display.set_caption("Fish Simulation")
@@ -15,7 +15,6 @@ num_plankton = 20
 
 pygame.font.init()
 font = pygame.font.SysFont("opensans",30)
-
 # var
 
 
@@ -24,6 +23,9 @@ mittlere_schwimmhöhe: float = min(15.0,24.0)
 niedrige_schwimmhöhe: float = 15.0
 
 
+class Environment(object):
+    def __init__(self):
+        pass
 
     
 class Nahrung(object):
@@ -105,13 +107,13 @@ class Fish(object):
         self.fish_rot = pygame.transform.flip(self.fish_scaled,True,True)
 
 
-        self.rect = pygame.Rect(self.position[0],self.position[1],20,20)
+        self.rect = pygame.Rect(self.position.x,self.position.y,20,20)
 
         
         self.velocity = pygame.Vector2(random.uniform(-1,1),random.uniform(-1,1))
         self.perception_radius = 70
-        self.max_speed = 2
-        self.max_force = 0.1 # Maximale Steuerkraft
+        self.max_speed = 5
+        self.max_force = 0.01 # Maximale Steuerkraft
 
         self.face_direction_timer = pygame.time.get_ticks()
         self.face_direction_timer_dur = 100
@@ -140,7 +142,7 @@ class Fish(object):
             self.direction = "Links"
 
 
-        if self.direction == "Rechts":
+        if self.direction == "Rechts" or self.direction == "Oben":
                 self.fish_rot = pygame.transform.flip(self.fish_scaled,True,False)
         else:
                 self.fish_rot = pygame.transform.flip(self.fish_scaled,False,False)
@@ -155,7 +157,7 @@ class Fish(object):
 
         self.position += self.velocity 
 
-
+        self.collision_detection()
 
 
     def apply_behaviour(self):
@@ -169,7 +171,7 @@ class Fish(object):
 
         self.velocity += alignment * 1.5
         self.velocity += cohesion * 1.1
-        self.velocity += seperation * 1.5
+        self.velocity += seperation * 2
 
 
     def align(self):
@@ -229,7 +231,7 @@ class Fish(object):
             steering /= total
             if steering.length() > 0:
                 steering = steering.normalize() * self.max_speed
-            steering -= self.velocity
+            steering += self.velocity
             if steering.length() > self.max_force:
                 steering = steering.normalize() * self.max_force
         return steering
@@ -240,7 +242,6 @@ class Fish(object):
     def update(self):
         global steering
         self.apply_behaviour()
-        self.collision_detection()
 
         screen.blit(self.fish_rot,(self.position))
         self.rect = pygame.Rect(self.position[0],self.position[1],20,20)
