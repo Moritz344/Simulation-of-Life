@@ -92,7 +92,7 @@ class Nahrung(object):
 
 
 class Fish(object):
-    def __init__(self,position,colour,fish_art="normal",speed=0,size=16):
+    def __init__(self,position,colour,fish_art="normal",speed=3,size=16):
         self.position = pygame.Vector2(position)
         self.speed = speed
         self.size = size
@@ -100,7 +100,6 @@ class Fish(object):
         self.fish_art = fish_art
         
         self.direction = ""
-        self.colour = colour
         
         self.fish_image = pygame.image.load("fish.png")
         self.fish_scaled = pygame.transform.scale(self.fish_image,(self.size,self.size))
@@ -122,11 +121,15 @@ class Fish(object):
 
 
     def collision_detection(self):
-        for fish in fish_group:
-                if self.position[0] >= width - self.size * 2 or self.position[0] <= 0 + self.size * 2:
-                    fish.velocity *= -1
-                if self.position[1] >= height - self.size * 2 or self.position[1] <= 0 + self.size * 2 :
-                    fish.velocity *= -1
+        if self.position.x >= width - self.size * 2:
+            self.position.x = 0 + self.size * 2
+        elif self.position.x <= 0 + self.size * 2:
+            self.position.x = width - self.size * 2
+
+        if self.position.y >= height - self.size * 2:
+            self.position.y = self.size * 2
+        elif self.position.y <= 0 + self.size * 2:
+            self.position.y = height - self.size * 2
 
     def Richtung_bestimmen(self):
         angle = math.atan2(self.velocity.y, self.velocity.x)  # Winkel in Radiant
@@ -155,7 +158,7 @@ class Fish(object):
         if self.velocity.length() > self.max_speed:
             self.velocity = self.velocity.normalize() * self.max_speed
 
-        self.position += self.velocity 
+        self.position += self.speed * self.velocity 
 
         self.collision_detection()
 
@@ -248,12 +251,170 @@ class Fish(object):
 
         #print(f"{id(self)}:{self.velocity}")
 
+class Fish_2():
+    def __init__(self,position,speed=0,size=20):
+        self.position = pygame.Vector2(position)
+        self.size = size
+
+        self.velocity = pygame.Vector2(random.uniform(-1,1),random.uniform(-1,1))
+        self.perception_radius = 70
+        self.max_force = 0.1
+        self.max_speed = 2
+        self.not_zero = 0.01
+        self.speed = 5
+
+        
+        self.fish_image = pygame.image.load("fish_2.png")
+        self.fish_image_scaled = pygame.transform.scale(self.fish_image,(self.size,self.size))
+        self.fish_rot = pygame.transform.flip(self.fish_image_scaled,True,False)
+        self.rect = pygame.Rect(self.position.x,self.position.y,self.size,self.size)
+
+    def collision_detection(self):
+        if self.position.x >= width - self.size * 2:
+            self.position.x = 0 + self.size * 2
+        elif self.position.x <= 0 + self.size * 2:
+            self.position.x = width - self.size * 2
+
+        if self.position.y >= height - self.size * 2:
+            self.position.y = self.size * 2
+        elif self.position.y <= 0 + self.size * 2:
+            self.position.y = height - self.size * 2
+    def move(self):
+        # Begrenze die Geschwindigkeit
+        if self.velocity.length() > self.max_speed:
+            self.velocity = self.velocity.normalize() * self.max_speed
+
+        self.position += self.speed * self.velocity 
+
+        self.collision_detection()
+
+
+    def collision_detection_2(self,other):
+        return (self.rect.colliderect(other.rect))
+
+    def Richtung_bestimmen(self):
+        angle = math.atan2(self.velocity.y, self.velocity.x)  # Winkel in Radiant
+        angle_in_degrees = math.degrees(angle)
+
+        if -45 <= angle_in_degrees < 45:
+            self.direction = "Rechts"
+        elif 45 <= angle_in_degrees < 135:
+            self.direction = "Unten"
+        elif -135 <= angle_in_degrees < -45:
+            self.direction = "Oben"
+        else:
+            self.direction = "Links"
+
+
+        if self.direction == "Rechts" or self.direction == "Oben":
+                self.fish_rot = pygame.transform.flip(self.fish_image_scaled,True,False)
+        else:
+                self.fish_rot = pygame.transform.flip(self.fish_image_scaled,False,False)
+
+        return self.direction
+
+    def apply_behaviour(self):
+        alignment = self.align()
+        cohesion = self.cohere()
+        seperation = self.seperate()
+
+        if self.velocity.length() > self.max_speed:
+            self.velocity = self.velocity.normalize() * self.max_speed
+
+
+        self.velocity += alignment 
+        self.velocity += cohesion 
+        self.velocity += seperation 
+
+
+    def align(self):
+        """Passe die Richtung an die Nachbarn an."""
+        steering = pygame.Vector2(0,0)
+        total = 0
+        for fish in fish_group_2:
+            if fish == self:
+                continue
+            distance = self.position.distance_to(fish.position)
+            if distance < self.perception_radius:
+                steering += fish.velocity
+                total += 1
+        if total > 0:
+            steering /= total
+            steering = steering.normalize()
+            steering -= self.velocity
+
+        return steering
+
+    def cohere(self):
+        """Bewege dich in Richtung des Massenschwerpunkts."""
+        steering = pygame.Vector2(0,0)
+        total = 0
+        for fish in fish_group_2:
+            if fish == self:
+                continue
+            distance = self.position.distance_to(fish.position)
+            if distance < self.perception_radius :
+                steering += fish.position
+                total += 1
+        if total > 0:
+            steering /= total
+            steering -= self.position
+            if steering.length() > 0:
+                steering = steering.normalize() * self.max_speed
+            steering -= self.velocity
+            if steering.length() > self.max_force:
+                steering = steering.normalize() * self.max_force
+        return steering
+
+    def seperate(self):
+        """Vermeide Kollisionen mit Nachbarn."""
+        steering = pygame.Vector2(0,0)
+        total = 0
+        for fish in fish_group_2:
+            if fish == self:
+                continue
+            distance = self.position.distance_to(fish.position)
+            if 0 < distance < self.perception_radius / 2: # nur fische in der nähe berücksichtigen
+                diff = self.position - fish.position
+                if distance > self.not_zero: # Vermeidung von Division durch 0
+                    diff /= distance # Gewichtung Entfernen
+                steering += diff
+                total += 1
+        if total > 0:
+            steering /= total
+            if steering.length() > 0:
+                steering = steering.normalize() * self.max_speed
+            steering += self.velocity
+            if steering.length() > self.max_force:
+                steering = steering.normalize() * self.max_force
+        return steering
+
+
+
+    def update(self):
+        screen.blit(self.fish_rot,(self.position))
+        self.rect = pygame.Rect(self.position.x,self.position.y,self.size,self.size)
+        self.apply_behaviour()
+        
+
 fish_group = [Fish((random.randint(200,300),random.randint(200,300)),random.choice(["blue","red","yellow","green"]),"normal") for _ in range(num)]
+fish_group_2 = [Fish_2(random.randint(500,700),random.randint(300,500)) for _ in range(num + 10)]
 fish = Fish((random.randint(200,300),random.randint(200,300)),random.choice(["blue","red","yellow","green"]),"normal")
+
 food_group = [Nahrung((random.randint(20,width - 30),random.randint(50,200)) ) for _ in range(num_plankton)]
 food = Nahrung((random.randint(20,width - 30),random.randint(50,200)) )
 kollision_food = False
 
+def spawn_collision_fish(fish):
+        for i in range(len(fish_group_2)):
+                for j in range(i+1,len(fish_group_2)):
+                    try:
+                        if fish_group_2[i].collision_detection_2(fish_group_2[j]) :
+                         fish_group_2.remove(fish_group_2[i])
+                    except IndexError :
+                        continue
+spawn_collision_fish(fish_group_2)
+spawn_collision_fish(fish_group)
 run = True
 while run:
     for event in pygame.event.get():
@@ -280,6 +441,7 @@ while run:
             else:
                 kollsion_food = False
 
+
     food.spawn_nahrung()
     for life in fish_group:
         #life.age_death()
@@ -288,6 +450,11 @@ while run:
         life.update()
     for food in food_group:
         food.update()
+
+    for life in fish_group_2:
+        life.Richtung_bestimmen()
+        life.move()
+        life.update()
 
     clock.tick(60)
     pygame.display.update()
