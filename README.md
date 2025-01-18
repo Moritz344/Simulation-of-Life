@@ -104,5 +104,21 @@ https://github.com/user-attachments/assets/2854a634-4073-4cbc-90ea-25adcc64e825
 
 </details>
 
+<details>
+<summary>Fisch Simulation (fish.py)</summary>
+
+
+
+
+
+
+https://github.com/user-attachments/assets/b5d7c5e5-b636-4ebd-807e-400c3e8ea59d
+
+
+
+
+
+</details>
+
 # Author
 - @Moritz344
