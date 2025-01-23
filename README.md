@@ -57,9 +57,10 @@ Mit der Linken Maustaste kannst du Grüne Zellen spawnen mit der rechten die Rot
 - können sich vermehren
 - enstehen durch grüne und blaue Zellen
 
-#  Zukunft 
-In Zukunft wird das Projekt wachsen.
-Wenn ihr Ideen habt dann schreibt mich gerne an per e-mail! 
+# 👋 Mitmachen 
+Wenn du deine eigene Simulation erstellen möchtest, kannst du das gerne tun!
+Im Discord gibt es einen Channel für Community-Beiträge, in dem du deine eigene Lebenssimulation teilen kannst.
+discord: https://discord.gg/FmxRutax6E
 
 # Andere Coole Lebewesen 🫀
 
