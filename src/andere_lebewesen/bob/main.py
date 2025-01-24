@@ -3,71 +3,68 @@ import random
 import noise
 import math
 import sys
+import threading
+import tkinter
+from ui import start_ui
+
+# Diese Simulation könnte beispielsweise eine Schlange simulieren oder eine Spielende Katze.
 
 
-width = 800
-height = 600
+width = 1920
+height = 1080
 screen = pygame.display.set_mode((width,height))
 pygame.display.set_caption("Bob")
 clock = pygame.time.Clock()
 
-cell_size = 20
-num_cells = 5
+cell_size = 25
+num_cells = 1
 
-# TODO: orange,blau,weiß -> jeweilige Eigenschaften
-# IDEE: Wenn cellen kollidieren nicht mehr bewegen
-# TODO: vermehrung
-# TODO: Narhungs klasse
+# TODO: ui
+
+def start_ui_thread() -> None:
+        start_ui()
+    # Thread für Tkinter starten
+ui_thread = threading.Thread(target=start_ui_thread)
+ui_thread.start()
 
 class Nahrung(object):
     def __init__(self):
         pass
 
+def help_function():
+    for i,v in enumerate(bob_family):
+        print(i+1,v.position)
+
 
 class Bob(object):
-    def __init__(self,position,size,box_x,box_y,lifespan,alive,speed=cell_size * 2):
+    def __init__(self,position,size,color,speed=cell_size * 2):
         self.position = pygame.Vector2(position)
         self.size: int = size
         self.speed: int = speed
         self.time = 0
         self.velocity = pygame.Vector2(random.uniform(-1,1),random.uniform(-1,1))
-        self.direction = None
-
-        self.alive: bool = alive
-        self.lifespan: float = lifespan
-        self.lifespan_timer = pygame.time.get_ticks()
 
 
-        self.box_x = box_x
-        self.box_y = box_y
-
-    def move(self):
-        box_width,box_height = 100,100
-        #pygame.draw.rect(screen,"white",(self.box_x ,self.box_y ,box_width,box_height),1)
-
-        self.direction = random.choice(["RIGHT","LEFT","UP","DOWN"])
-
-        if self.direction == "LEFT" and random.random() > 0.86:
-           self.position.x -= self.speed 
-        elif self.direction == "RIGHT" and random.random() > 0.86:
-           self.position.x += self.speed
-        elif self.direction == "UP" and random.random() > 0.86:
-           self.position.y -= self.speed
-        elif self.direction == "DOWN" and random.random() > 0.86:
-           self.position.y += self.speed
-
-
-        if self.position.x > self.box_x + 60:
-            self.position.x = self.box_x + 60
-        elif self.position.x < self.box_x :
-            self.position.x = self.box_x 
-
-        if self.position.y > self.box_y + 60:
-            self.position.y = self.box_y  + 60
-        elif self.position.y < self.box_y :
-            self.position.y = self.box_y 
         
+        self.erb_color = color
+
+        self.rect = pygame.Rect(self.position.x,self.position.y,self.size,self.size)
+
+
+
         
+    def noise_bewegung(self):
+        self.angle = (noise.pnoise1(self.time, repeat=1024) + 1)  * math.pi 
+        self.dx = math.cos(self.angle) * self.speed
+        self.dy = math.sin(self.angle) * self.speed 
+        
+        self.position.x += self.dx * 0.5
+        self.position.y += self.dy * 0.5
+        if random.random() > 0.78:
+            self.time += 0.1
+        else:
+            self.time += 0.01
+        print(self.position.x,self.position.y)
 
     def kollision_prüfen(self):
         if self.position.x >= width - self.size:
@@ -80,23 +77,26 @@ class Bob(object):
         elif self.position.y <= 0 + self.size:
             self.position.y = height - self.size
 
+        
 
     def draw_bob(self) -> None:
         # einfacher bob zum testen
-        erb= pygame.draw.rect(screen,"white",(self.position.x,self.position.y,self.size,self.size))
-        pygame.draw.rect(screen,"orange",(self.position.x + self.size,self.position.y + self.size,self.size,self.size))
-        pygame.draw.rect(screen,"blue",(self.position.x + self.size * 2,self.position.y + self.size * 2,self.size,self.size))
+        self.rect = pygame.Rect(self.position.x,self.position.y,self.size,self.size )
+        #points = [(self.position.x + self.size, self.position.y + self.size), (self.size , self.size), (self.position.x + self.size, self.position.y + self.size)]
+        pygame.draw.circle(screen, self.erb_color, self.position,self.size)
 
     def update(self) -> None:
         self.draw_bob()
-        #self.noise_bewegung()
+        self.noise_bewegung()
         self.kollision_prüfen()
-        self.move()
+        #self.life_span()
+        #self.move()
 
-bob = Bob((300,400),cell_size,3,random.randint(100,500),random.randint(100,500),True) 
+        print(num_cells)
+
+bob = Bob((300,400),10,random.choice(["white","black"]),15)
 bob_family = [
-    Bob((random.randint(100, 700), random.randint(100, 500)), cell_size,random.randint(100, 600), random.randint(100, 400),random.uniform(1000,2000),True)
-    for _ in range(num_cells)
+        Bob((300,400),cell_size,"white",cell_size)
 ]
 
 def spawn_cells(group: list):
@@ -112,12 +112,12 @@ while run:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_q:
                 run: bool = False
-
-    screen.fill("black")
-    
+    screen.fill(( 19, 21, 21 ))
+    #help_function()
     spawn_cells(bob_family)
 
     clock.tick(60)
     pygame.display.update()
     
 pygame.quit()
+ui_thread.join()
