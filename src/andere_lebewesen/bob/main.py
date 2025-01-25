@@ -56,7 +56,7 @@ def start_ui():
     label4 = tk.Label(window, text="Speed:", font=("Arial", 12))
     label4.grid(row=3, column=0, sticky="e", padx=(10, 5),pady=(20, 5))
 
-    slider_speed = tk.Scale(window, from_=0, to=10, orient=HORIZONTAL, command=update_speed)
+    slider_speed = tk.Scale(window, from_=0, to=30, orient=HORIZONTAL, command=update_speed)
     slider_speed.set(slider_speed_value)
     slider_speed.grid(row=3, column=1, sticky="w", padx=(5, 5))
 
