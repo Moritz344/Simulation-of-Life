@@ -13,7 +13,7 @@ screen= pygame.display.set_mode((width,height))
 clock = pygame.time.Clock()
 pygame.display.set_caption("worm/Snake")
 
-# Kann einen Wurm oder eine Schlange Simulieren
+#Kann einen Wurm oder eine Schlange Simulieren
 
 cell_size = 4
 food_num = 0
