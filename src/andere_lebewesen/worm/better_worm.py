@@ -2,19 +2,72 @@ import pygame
 import math
 import random
 import noise
+import tkinter as tk
+from tkinter import *
+import threading
+import sys
 
-width = 1920
-height = 1080
+width = 800
+height = 600
 screen= pygame.display.set_mode((width,height))
 clock = pygame.time.Clock()
 pygame.display.set_caption("worm/Snake")
 
 # Kann einen Wurm oder eine Schlange Simulieren
 
-cell_size = 10
+cell_size = 4
 food_num = 0
+creature_len = 20
 
-# TODO: ui
+# TODO: ein button der alle settings zu standard wechselt
+# TODO: 
+
+def settings_ui():
+    window = tk.Tk()
+    window.title("Settings")
+    window.geometry("300x200")
+    
+    header = tk.Label(window,text="Settings",font=("opensans",30),bg="black",fg="green")
+    header.grid(row=0,column=0)
+
+    hello = tk.Label(window,text="Here you can change the settings of the creatures.")
+    hello.grid(row=2,column=0,pady=0,padx=10)
+
+
+    frame0 = tk.Frame(window,width=100,height=100)
+    frame0.grid()
+
+    def update_speed(val):
+        for _,v in enumerate(life):
+            v.speed = int(val)
+
+    def update_time(val):
+        for _,v in enumerate(life):
+            v.time_add = float(val)
+    def change_length(val):
+        for _,v in enumerate(life):
+            v.snake_len = int(val )
+
+    speed_text = tk.Label(frame0,text="Speed:")
+    speed_text.grid(pady=0,padx=20,sticky="w")
+
+    time_text = tk.Label(frame0,text="Verändert Verhalten:")
+    time_text.grid(pady=0,padx=20,sticky="w")
+    
+
+    slider = tk.Scale(frame0,orient=HORIZONTAL,from_=1,to_=20,command=update_speed)
+    slider.set(4)
+    slider.grid(row=0,column=1,sticky="n")
+
+    time = tk.Scale(frame0,orient=HORIZONTAL,from_=0.01,resolution=0.01,to_=1,command=update_time)
+    time.set(0.01)
+    time.grid(row=1,column=1,sticky="n",pady=0,padx=0)
+
+    #creature_length = tk.Scale(frame0,orient=HORIZONTAL,from_=0,resolution=1,to_=30,command=change_length)
+    #creature_length.set(20)
+    #creature_length.grid(row=2,column=1,sticky="e")
+
+    window.mainloop()
 
 class Food(object):
     def __init__(self,position,size):
@@ -28,16 +81,17 @@ class Food(object):
         
 
 class Worm(object):
-    def __init__(self,position,direction,color,speed=cell_size):
+    def __init__(self,position,direction,color,snake_len,speed=4):
         self.position = pygame.Vector2(position)
         self.speed = speed
         self.time = 0
+        self.time_add = 0.01
         self.direction = direction
         self.color = color
         
         self.size = 10
-        self.snake_len = 30
         self.snake_list =  [] 
+        self.snake_len = snake_len
         self.snake_head = [self.position.x ,self.position.y ]
         self.snake_list.append(self.snake_head)
         
@@ -58,7 +112,7 @@ class Worm(object):
         else:
             self.position.y += self.dy 
         
-        self.time += 0.1
+        self.time += self.time_add
 
     
     def collision(self):
@@ -93,13 +147,12 @@ class Worm(object):
 
 
     def update(self):
-        
         self.draw_line()
         self.move()
         self.collision()
 
-life = [Worm((random.randint(0,width),random.randint(0,height)),random.choice(["LEFT","RIGHT","UP","DOWN"]),"white",cell_size) for _ in range(10)]
-worm = Worm((random.randint(0,width),random.randint(0,height)),random.choice(["LEFT","RIGHT","UP","DOWN"]),"white",cell_size)
+life = [Worm((random.randint(0,width),random.randint(0,height)),random.choice(["LEFT","RIGHT","UP","DOWN"]),"white",creature_len,cell_size) for _ in range(10)]
+worm = Worm((random.randint(0,width),random.randint(0,height)),random.choice(["LEFT","RIGHT","UP","DOWN"]),"white",creature_len,cell_size)
 
 food = [Food((300,0),10) for _ in range(food_num)]
 
@@ -125,27 +178,34 @@ def del_food():
             food_num -= 1
             food.remove(v)
 
+def main():
+    run = True
+    while run:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run = False
+                pygame.quit()
+            elif event.type == pygame.KEYDOWN:
+                run = False
 
-run = True
-while run:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
-        elif event.type == pygame.KEYDOWN:
-            run = False
-
-    screen.fill("black")
-
-    pressed = pygame.mouse.get_pressed()
-    if pressed[0]:
-        spawn_food()
-    if pressed[2]:
-        del_food()
-
-    spawn_object(food)
-    spawn_object(life)
-
-
-    clock.tick(60)
-    pygame.display.update()
-pygame.quit()
+        screen.fill("black")
+    
+        pressed = pygame.mouse.get_pressed()
+        if pressed[0]:
+            spawn_food()
+        elif pressed[2]:
+            del_food()
+    
+        spawn_object(food)
+        spawn_object(life)
+    
+    
+        clock.tick(60)
+        pygame.display.update()
+if __name__ == "__main__":
+    try:
+     game_thread = threading.Thread(target=main,daemon=True)
+     game_thread.start()
+     settings_ui()
+    except Exception as e:
+        print(e)
