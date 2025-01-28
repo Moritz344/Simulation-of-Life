@@ -18,16 +18,6 @@ font = pygame.font.SysFont("opensans",30)
 # var
 
 
-hohe_schwimmhöhe: float = 25.0
-mittlere_schwimmhöhe: float = min(15.0,24.0)
-niedrige_schwimmhöhe: float = 15.0
-
-
-class Environment(object):
-    def __init__(self):
-        pass
-
-    
 class Nahrung(object):
     def __init__(self,position):
         self.position = list(position)
@@ -92,11 +82,10 @@ class Nahrung(object):
 
 
 class Fish(object):
-    def __init__(self,position,colour,fish_art="normal",speed=3,size=16):
+    def __init__(self,position,fish_art="normal",speed=2,size=16):
         self.position = pygame.Vector2(position)
         self.speed = speed
         self.size = size
-        self.alive = True
         self.fish_art = fish_art
         
         self.direction = ""
@@ -111,20 +100,19 @@ class Fish(object):
         
         self.velocity = pygame.Vector2(random.uniform(-1,1),random.uniform(-1,1))
         self.perception_radius = 70
-        self.max_speed = 5
-        self.max_force = 0.01 # Maximale Steuerkraft
+        self.max_speed = 2
+        self.not_zero = 0.01
+        self.max_force = 0.1 # Maximale Steuerkraft
 
-        self.face_direction_timer = pygame.time.get_ticks()
-        self.face_direction_timer_dur = 100
 
 
 
 
     def collision_detection(self):
         if self.position.x >= width - self.size * 2:
-            self.position.x = 0 + self.size * 2
+            self.position.x = self.size * 3
         elif self.position.x <= 0 + self.size * 2:
-            self.position.x = width - self.size * 2
+            self.position.x = width - self.size * 3
 
         if self.position.y >= height - self.size * 2:
             self.position.y = self.size * 2
@@ -226,7 +214,7 @@ class Fish(object):
             distance = self.position.distance_to(fish.position)
             if 0 < distance < self.perception_radius / 2: # nur fische in der nähe berücksichtigen
                 diff = self.position - fish.position
-                if distance > 0.0001: # Vermeidung von Division durch 0
+                if distance > self.not_zero: # Vermeidung von Division durch 0
                     diff /= distance # Gewichtung Entfernen
                 steering += diff
                 total += 1
@@ -259,15 +247,16 @@ class Fish_2():
         self.velocity = pygame.Vector2(random.uniform(-1,1),random.uniform(-1,1))
         self.perception_radius = 70
         self.max_force = 0.1
-        self.max_speed = 2
+        self.max_speed = 4
         self.not_zero = 0.01
-        self.speed = 5
+        self.speed = 3
 
         
         self.fish_image = pygame.image.load("fish_2.png")
         self.fish_image_scaled = pygame.transform.scale(self.fish_image,(self.size,self.size))
         self.fish_rot = pygame.transform.flip(self.fish_image_scaled,True,False)
         self.rect = pygame.Rect(self.position.x,self.position.y,self.size,self.size)
+
 
     def collision_detection(self):
         if self.position.x >= width - self.size * 2:
@@ -397,37 +386,27 @@ class Fish_2():
         self.apply_behaviour()
         
 
-fish_group = [Fish((random.randint(200,300),random.randint(200,300)),random.choice(["blue","red","yellow","green"]),"normal") for _ in range(num)]
+fish_group = [Fish((random.randint(200,300),random.randint(200,300)),"normal") for _ in range(num)]
 fish_group_2 = [Fish_2(random.randint(500,700),random.randint(300,500)) for _ in range(num + 10)]
-fish = Fish((random.randint(200,300),random.randint(200,300)),random.choice(["blue","red","yellow","green"]),"normal")
+fish_group_3 = [Fish_2(random.randint(200,700),random.randint(100,500)) for _ in range(num + 10)]
+fish = Fish((random.randint(200,300),random.randint(200,300)),"normal")
 
 food_group = [Nahrung((random.randint(20,width - 30),random.randint(50,200)) ) for _ in range(num_plankton)]
 food = Nahrung((random.randint(20,width - 30),random.randint(50,200)) )
 kollision_food = False
 
 def spawn_collision_fish(fish):
-        for i in range(len(fish_group_2)):
-                for j in range(i+1,len(fish_group_2)):
+        for i in range(len(fish)):
+                for j in range(i+1,len(fish)):
                     try:
-                        if fish_group_2[i].collision_detection_2(fish_group_2[j]) :
-                         fish_group_2.remove(fish_group_2[i])
+                        if fish[i].collision_detection_2(fish[j]) :
+                         fish.remove(fish[i])
                     except IndexError :
                         continue
+
 spawn_collision_fish(fish_group_2)
-spawn_collision_fish(fish_group)
-run = True
-while run:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            run = False
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_q:
-                run = False
 
-    screen.fill((29, 45, 68))
-
-
-
+def Nahrungs_kollision(num_plankton,kollision_food):
     # Kollision zwischen Nahrung
     for i in range(len(food_group)):
         for j in range(i+1,len(food_group)):
@@ -441,20 +420,36 @@ while run:
             else:
                 kollsion_food = False
 
+def spawning_fish(group):
+    for life in group:
+        life.Richtung_bestimmen()
+        life.move()
+        life.update()
+
+run = True
+while run:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            run = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_q:
+                run = False
+
+    screen.fill((29, 45, 68))
+
+
+
+    Nahrungs_kollision(num_plankton,kollision_food)
 
     food.spawn_nahrung()
-    for life in fish_group:
-        #life.age_death()
-        life.Richtung_bestimmen()
-        life.move()
-        life.update()
+
     for food in food_group:
         food.update()
+    spawning_fish(fish_group)
+    spawning_fish(fish_group_2)
+    spawning_fish(fish_group)
+    spawning_fish(fish_group_2)
 
-    for life in fish_group_2:
-        life.Richtung_bestimmen()
-        life.move()
-        life.update()
 
     clock.tick(60)
     pygame.display.update()
