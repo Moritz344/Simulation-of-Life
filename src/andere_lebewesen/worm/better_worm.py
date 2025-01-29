@@ -20,15 +20,17 @@ food_num = 0
 creature_len = 20
 
 # TODO: ein button der alle settings zu standard wechselt
-# TODO: 
 
 def settings_ui():
     window = tk.Tk()
     window.title("Settings")
-    window.geometry("300x200")
+    window.geometry("400x300")
+
+    photo = tk.PhotoImage(file="icon.png")
+    photo = photo.subsample(2,2)
+    label = tk.Label(window,image=photo).grid(row=0,column=0,pady=10,padx=20)
+
     
-    header = tk.Label(window,text="Settings",font=("opensans",30),bg="black",fg="green")
-    header.grid(row=0,column=0)
 
     hello = tk.Label(window,text="Here you can change the settings of the creatures.")
     hello.grid(row=2,column=0,pady=0,padx=10)
@@ -36,6 +38,11 @@ def settings_ui():
 
     frame0 = tk.Frame(window,width=100,height=100)
     frame0.grid()
+
+    frame1 = tk.Frame(window,width=100,height=100)
+    frame1.grid()
+
+
 
     def update_speed(val):
         for _,v in enumerate(life):
@@ -48,10 +55,14 @@ def settings_ui():
         for _,v in enumerate(life):
             v.snake_len = int(val )
 
+    def reset_settings():
+        slider.set(4)
+        time.set(0.01)
+
     speed_text = tk.Label(frame0,text="Speed:")
     speed_text.grid(pady=0,padx=20,sticky="w")
 
-    time_text = tk.Label(frame0,text="Verändert Verhalten:")
+    time_text = tk.Label(frame0,text="behaviour:")
     time_text.grid(pady=0,padx=20,sticky="w")
     
 
@@ -62,6 +73,12 @@ def settings_ui():
     time = tk.Scale(frame0,orient=HORIZONTAL,from_=0.01,resolution=0.01,to_=1,command=update_time)
     time.set(0.01)
     time.grid(row=1,column=1,sticky="n",pady=0,padx=0)
+
+    reset_button = tk.Button(frame1,text="RESET",command=reset_settings)
+    reset_button.grid(row=2,column=1,sticky="w",pady=20,padx=0)
+
+    quit_button = tk.Button(frame1,text="QUIT",command= lambda: window.destroy())
+    quit_button.grid(row=2,column=2,sticky="e",pady=20,padx=10)
 
     #creature_length = tk.Scale(frame0,orient=HORIZONTAL,from_=0,resolution=1,to_=30,command=change_length)
     #creature_length.set(20)
